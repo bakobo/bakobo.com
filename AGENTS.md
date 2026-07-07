@@ -1,28 +1,29 @@
 ## Testing Protocol
 
-This repository appears to have no test suite yet. Before writing feature code
-or fixing bugs, propose an appropriate testing framework for this project type
-and add a single trivially-passing test to confirm the setup works. In the
-same commit, propose to change AGENTS.md to replace this instruction with one
-that instructs agents to follow strict TDD from now on: write failing tests
-that capture happy path and edge cases/unhappy paths for each requirement,
-observe them fail, implement until tests pass, never checkin without proving
-that all tests pass, aim for 100% of all new code, and always leave existing
-code better tested than it was before you touched it.
+This repo has a test suite: `pytest`, standard-library only, in `tests/` (see
+the README for how to run it). It checks the invariants that quietly break a
+static placeholder — every referenced asset resolves, the canonical/OG/JSON-LD
+metadata is present and valid, the social card is exactly 1200×630, robots.txt
+stays a pure signal, and no stealth-leak terms appear in the published copy.
+
+Keep it green, and grow it with the site:
+
+- Run `pytest` before every commit; never check in with the suite red.
+- When you add or change a feature — a page, an asset, an SEO/metadata rule, a
+  workflow — add or update a check that would fail without your change. For
+  logic with real branches, prefer writing the failing check first (TDD).
+- When you change the site's public promise (what it may or may not reveal),
+  encode it as a test (see `test_no_stealth_leak`) so the boundary can't erode.
+
+This is a content/brand site, not an app, so chase *meaningful* coverage of
+behavior and invariants rather than a line-coverage number.
 
 ## CI and Documentation
 
-This repo appears to have no CI workflows yet. Until it does, any time you make
-code changes to the user, propose an appropriate set of GitHub actions (e.g.,
-`.github/workflows/ci.yml`) that builds and runs tests on every push and
-pull request. Propose to remove this instruction from AGENTS.md on the
-same commit.
-
-This repository has no README. As long is this is the case, any time you
-make code changes for the user, propose to add a `README.md` that explains how
-to get from a fresh clone to passing tests, with a clickable CI status
-badge at the top for each active workflow. Propose to remove this
-instruction from AGENTS.md on the same commit.
+CI lives in `.github/workflows/pages.yml`: it runs the test suite on every push
+and pull request, and deploys to GitHub Pages from `main` once tests pass. The
+`README.md` carries the status badge and the fresh-clone-to-passing-tests steps;
+keep both current as the site evolves.
 
 When writing or modifying GitHub Actions workflows, always use the latest
 stable release of each action. Avoid versions pinned to Node.js 16 or

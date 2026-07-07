@@ -1,0 +1,74 @@
+name: Pages
+
+# Tests run on every push and pull request; deploy to GitHub Pages happens
+# only after tests pass on main. Action versions are pinned to node24-runtime
+# releases (checked 2026-07-07).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: python -m pip install --upgrade pip pytest
+      - run: pytest -q
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+
+      # Publish only the site itself — keep dev files (tests, tooling, agent
+      # instructions, the card generator) out of the public artifact.
+      - name: Stage site
+        run: |
+          mkdir _site
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.tick' \
+            --exclude='tests' \
+            --exclude='assets/social' \
+            --exclude='pyproject.toml' \
+            --exclude='uv.lock' \
+            --exclude='.venv' \
+            --exclude='.pytest_cache' \
+            --exclude='__pycache__' \
+            --exclude='_site' \
+            --exclude='.gitignore' \
+            --exclude='.cursorrules' \
+            --exclude='AGENTS.md' \
+            --exclude='CLAUDE.md' \
+            --exclude='GEMINI.md' \
+            --exclude='README.md' \
+            ./ _site/
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v5
