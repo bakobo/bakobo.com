@@ -1,0 +1,306 @@
+/* Bakobo — bakobo.com placeholder.
+   Layered on tokens.css (the generated palette/type source of truth).
+   Aesthetic: warm editorial minimalism on a committed dark, campfire-lit
+   canvas — grounded, confident, humble. The trustmark's circle is the
+   quiet centerpiece. Clay is a spark, never a flood. */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--bk-font-sans);
+  font-weight: 400;
+  color: var(--bk-sand);
+  background-color: var(--bk-pitch);
+  /* warm, off-center campfire glow over near-black, plus a floor of Espresso */
+  background-image:
+    radial-gradient(120% 90% at 72% 18%,
+      rgba(239, 139, 87, 0.18) 0%,
+      rgba(112, 90, 77, 0.10) 34%,
+      rgba(0, 0, 0, 0) 66%),
+    radial-gradient(140% 120% at 50% 120%,
+      rgba(74, 43, 27, 0.55) 0%,
+      rgba(0, 0, 0, 0) 60%);
+  background-attachment: fixed;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Fine film grain for warmth and depth — SVG fractal noise, very low alpha.
+   Sits above the gradient, below the content, and ignores pointer events. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  width: min(74rem, 100% - 2.5rem);
+  margin-inline: auto;
+  padding-block: clamp(1.75rem, 4vh, 3rem);
+}
+
+/* ---- masthead ------------------------------------------------------------ */
+
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.masthead__logo { display: block; height: 2rem; width: auto; }
+
+.masthead__status {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bk-stone);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  white-space: nowrap;
+}
+
+/* a slow, breathing ember dot */
+.masthead__status::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--bk-clay);
+  box-shadow: 0 0 0.5em 0.05em rgba(239, 139, 87, 0.7);
+  animation: ember 3.6s ease-in-out infinite;
+}
+
+@keyframes ember {
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1); }
+}
+
+/* ---- hero ---------------------------------------------------------------- */
+
+.hero {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 5rem);
+  padding-block: clamp(3rem, 12vh, 8rem);
+}
+
+.hero__intro { max-width: 40ch; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85em;
+  font-size: clamp(0.78rem, 1.4vw, 0.9rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bk-clay);
+  margin: 0 0 clamp(1.25rem, 3vw, 1.9rem);
+}
+
+.eyebrow::before {
+  content: "";
+  width: clamp(1.75rem, 4vw, 2.75rem);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.hero__title {
+  font-weight: 700;
+  color: var(--bk-mist);
+  font-size: clamp(2.85rem, 8.5vw, 6.25rem);
+  line-height: 0.96;
+  letter-spacing: -0.025em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.hero__title .spark { color: var(--bk-clay); }
+
+.hero__lede {
+  margin: clamp(1.6rem, 4vw, 2.4rem) 0 0;
+  font-size: clamp(1.1rem, 1.9vw, 1.4rem);
+  line-height: 1.5;
+  color: var(--bk-sand);
+  max-width: 34ch;
+}
+
+/* ---- trustmark centerpiece ---------------------------------------------- */
+
+.hero__mark {
+  justify-self: center;
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.hero__mark img {
+  width: 78%;
+  height: auto;
+  border-radius: 6%;
+  /* the mark carries its own black ground; lift it off the page softly */
+  box-shadow:
+    0 0 0 1px rgba(222, 193, 177, 0.08),
+    0 2.5rem 5rem -1.5rem rgba(0, 0, 0, 0.8);
+}
+
+/* warm halo bloom behind the mark's translucent circle */
+.hero__mark::before {
+  content: "";
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%,
+    rgba(250, 219, 203, 0.22) 0%,
+    rgba(239, 139, 87, 0.16) 32%,
+    rgba(0, 0, 0, 0) 68%);
+  filter: blur(6px);
+  animation: bloom 7s ease-in-out infinite;
+}
+
+@keyframes bloom {
+  0%, 100% { opacity: 0.75; transform: scale(0.98); }
+  50%      { opacity: 1;    transform: scale(1.03); }
+}
+
+/* ---- stance -------------------------------------------------------------- */
+
+.stance {
+  border-top: 1px solid rgba(140, 128, 121, 0.22);
+  padding-top: clamp(2rem, 5vw, 3rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.stance__body {
+  margin: 0;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--bk-sand);
+  max-width: 60ch;
+}
+
+.stance__body strong { color: var(--bk-mist); font-weight: 600; }
+
+.stance__category {
+  margin: 0;
+  align-self: end;
+}
+
+.stance__category b {
+  display: block;
+  font-weight: 600;
+  color: var(--bk-mist);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.4;
+}
+
+.stance__category span {
+  color: var(--bk-stone);
+  font-size: 0.95rem;
+}
+
+/* ---- footer -------------------------------------------------------------- */
+
+.footer {
+  margin-top: clamp(2.5rem, 7vw, 4.5rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  font-size: 0.92rem;
+  color: var(--bk-stone);
+}
+
+.footer a {
+  color: var(--bk-clay);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(239, 139, 87, 0.35);
+  padding-bottom: 1px;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.footer a:hover,
+.footer a:focus-visible {
+  color: var(--bk-blush);
+  border-bottom-color: var(--bk-blush);
+}
+
+.footer__contact { color: var(--bk-sand); }
+.footer__legal { letter-spacing: 0.02em; }
+
+:focus-visible {
+  outline: 2px solid var(--bk-clay);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---- entrance choreography ---------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+  .hero__mark {
+    opacity: 0;
+    animation: markIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+  }
+}
+
+@keyframes reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes markIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---- responsive ---------------------------------------------------------- */
+
+@media (max-width: 52rem) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 8vw, 4rem);
+    padding-block: clamp(2.5rem, 8vh, 5rem);
+  }
+  .hero__mark {
+    grid-row: 1;
+    width: min(62%, 15rem);
+    justify-self: start;
+  }
+  .hero__intro { max-width: none; }
+}
+
+@media (max-width: 34rem) {
+  .masthead__status { display: none; }
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--
+  Social-card generator for bakobo.com (1200×630, summary_large_image).
+  Reproducible: render at exactly 1200×630 to produce ../img/og-card.png.
+    chromium --headless --window-size=1200,630 --default-background-color=00000000 \
+      --screenshot=assets/img/og-card.png <served>/assets/social/card.html
+  Uses the brand tokens + Noto Sans so the card can't drift from the brand.
+-->
+<html lang="en" class="bk-dark">
+<head>
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html, body { width: 1200px; height: 630px; }
+    body {
+      font-family: var(--bk-font-sans);
+      background-color: var(--bk-pitch);
+      background-image:
+        radial-gradient(110% 90% at 78% 16%,
+          rgba(239,139,87,0.20) 0%, rgba(112,90,77,0.10) 34%, rgba(0,0,0,0) 66%),
+        radial-gradient(140% 120% at 40% 128%,
+          rgba(74,43,27,0.60) 0%, rgba(0,0,0,0) 60%);
+      color: var(--bk-sand);
+      display: flex;
+      align-items: center;
+      gap: 56px;
+      padding: 72px 80px;
+      overflow: hidden;
+    }
+    .col { flex: 1 1 auto; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 16px;
+      font-size: 21px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--bk-clay); font-weight: 600;
+    }
+    .eyebrow::before { content:""; width: 46px; height: 2px; background: currentColor; opacity: 0.85; }
+    h1 {
+      font-weight: 700; color: var(--bk-mist);
+      font-size: 82px; line-height: 0.98; letter-spacing: -0.025em;
+      max-width: 15ch;
+    }
+    h1 .spark { color: var(--bk-clay); }
+    .logo { height: 40px; width: auto; }
+    .mark { flex: 0 0 auto; position: relative; display: grid; place-items: center; }
+    .mark::before {
+      content:""; position: absolute; inset: -8%; border-radius: 50%;
+      background: radial-gradient(circle at 50% 42%,
+        rgba(250,219,203,0.24) 0%, rgba(239,139,87,0.16) 34%, rgba(0,0,0,0) 68%);
+      filter: blur(8px);
+    }
+    .mark img {
+      position: relative; width: 300px; height: 300px; border-radius: 6%;
+      box-shadow: 0 0 0 1px rgba(222,193,177,0.09), 0 40px 80px -24px rgba(0,0,0,0.85);
+    }
+  </style>
+</head>
+<body>
+  <div class="col">
+    <span class="eyebrow">empowered interactions</span>
+    <h1>Act. Don&rsquo;t be acted upon<span class="spark">.</span></h1>
+    <img class="logo" src="/assets/img/named-logo.svg" alt="Bakobo">
+  </div>
+  <div class="mark">
+    <img src="/assets/img/trustmark.svg" alt="">
+  </div>
+</body>
+</html>
