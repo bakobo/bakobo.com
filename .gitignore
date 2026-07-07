@@ -1,2 +1,11 @@
 /.tick
 .tick.lock
+
+# Python test tooling (the site itself ships no Python)
+.venv/
+__pycache__/
+.pytest_cache/
+uv.lock
+
+# Pages build staging
+_site/

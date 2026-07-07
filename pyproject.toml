@@ -1,0 +1,12 @@
+[project]
+name = "bakobo-com"
+version = "0.0.0"
+description = "bakobo.com — the Bakobo corporate placeholder site"
+requires-python = ">=3.11"
+
+[dependency-groups]
+# Dev-only: the static site itself ships no Python. Tests are stdlib + pytest.
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
