@@ -1,0 +1,24 @@
+# bakobo.com — keep the search index a pure signal.
+#
+# The positive signal is the sitemap: it lists exactly the page(s) we want
+# indexed (today, just the homepage). Search engines strongly prefer sitemap
+# URLs, so machine-only files won't compete with the homepage even if crawled.
+#
+# We also disallow the machine-only areas outright. Files under /.well-known/
+# (DID docs, apple-app-site-association, assetlinks.json, security.txt, …),
+# ad-tech files (ads.txt), and site-verification tokens are consumed by tools
+# that fetch them DIRECTLY (Apple, Google Play, security scanners, ad-exchange
+# crawlers) and ignore robots.txt — so disallowing crawl keeps them out of
+# search results without breaking any of those consumers.
+#
+# Note: GitHub Pages can't emit per-file `X-Robots-Tag: noindex` headers, so
+# robots.txt + sitemap membership is the lever we have. Add a line below as you
+# introduce each machine-only path.
+
+User-agent: *
+Disallow: /.well-known/
+# Disallow: /ads.txt              # uncomment if/when you publish ads.txt
+# Prefer DNS-TXT or meta-tag verification over dropping a googleXXXX.html file,
+# so there's no verification cruft in the tree at all.
+
+Sitemap: https://bakobo.com/sitemap.xml

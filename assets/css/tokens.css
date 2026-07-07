@@ -1,0 +1,60 @@
+/* Bakobo design tokens -- GENERATED from bakobo_brand.palette. Do not edit by hand. */
+:root {
+  /* raw palette */
+  --bk-clay: #ef8b57;
+  --bk-sand: #dec1b1;
+  --bk-umber: #705a4d;
+  --bk-blush: #fadbcb;
+  --bk-espresso: #4a2b1b;
+  --bk-ink: #44403b;
+  --bk-stone: #8c8079;
+  --bk-mist: #efe9e4;
+  --bk-paper: #ffffff;
+  --bk-pitch: #000000;
+
+  /* semantic roles (light) */
+  --bk-bg: var(--bk-paper);
+  --bk-surface: var(--bk-mist);
+  --bk-text: var(--bk-ink);
+  --bk-muted: var(--bk-stone);
+  --bk-primary: var(--bk-clay);
+  --bk-accent: var(--bk-umber);
+  --bk-border: var(--bk-stone);
+
+  /* type */
+  --bk-font-sans: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bk-font-mono: 'Noto Sans Mono', ui-monospace, 'Cascadia Code', monospace;
+}
+
+/* follow the OS preference unless a .bk-light scope opts out */
+@media (prefers-color-scheme: dark) {
+  :root:not(.bk-light) {
+    --bk-bg: var(--bk-pitch);
+    --bk-surface: var(--bk-espresso);
+    --bk-text: var(--bk-stone);
+    --bk-muted: var(--bk-stone);
+    --bk-primary: var(--bk-clay);
+    --bk-accent: var(--bk-blush);
+    --bk-border: var(--bk-stone);
+  }
+}
+
+/* explicit per-scope overrides (e.g. a MARP slide class) */
+.bk-dark {
+    --bk-bg: var(--bk-pitch);
+    --bk-surface: var(--bk-espresso);
+    --bk-text: var(--bk-stone);
+    --bk-muted: var(--bk-stone);
+    --bk-primary: var(--bk-clay);
+    --bk-accent: var(--bk-blush);
+    --bk-border: var(--bk-stone);
+}
+.bk-light {
+  --bk-bg: var(--bk-paper);
+  --bk-surface: var(--bk-mist);
+  --bk-text: var(--bk-ink);
+  --bk-muted: var(--bk-stone);
+  --bk-primary: var(--bk-clay);
+  --bk-accent: var(--bk-umber);
+  --bk-border: var(--bk-stone);
+}
