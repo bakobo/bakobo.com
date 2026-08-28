@@ -100,13 +100,16 @@ body::before {
 .hero {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+  /* The headline is the point; the mark accompanies it. Give the mark a
+     bounded column rather than a proportional one, so the type keeps the
+     room it needs as the viewport grows. */
+  grid-template-columns: minmax(0, 1fr) clamp(9rem, 22vw, 20rem);
   align-items: center;
-  gap: clamp(2rem, 6vw, 5rem);
+  gap: clamp(2rem, 5vw, 4rem);
   padding-block: clamp(3rem, 12vh, 8rem);
 }
 
-.hero__intro { max-width: 40ch; }
+.hero__intro { max-width: none; }
 
 .eyebrow {
   display: inline-flex;
@@ -144,14 +147,14 @@ body::before {
   font-size: clamp(1.1rem, 1.9vw, 1.4rem);
   line-height: 1.5;
   color: var(--bk-sand);
-  max-width: 34ch;
+  max-width: min(46ch, 100%);
 }
 
 /* ---- trustmark centerpiece ---------------------------------------------- */
 
 .hero__mark {
   justify-self: center;
-  width: min(100%, 26rem);
+  width: 100%;
   aspect-ratio: 1;
   position: relative;
   display: grid;
@@ -209,7 +212,7 @@ body::before {
 
 .stance__category {
   margin: 0;
-  align-self: end;
+  align-self: start;
 }
 
 .stance__category b {
