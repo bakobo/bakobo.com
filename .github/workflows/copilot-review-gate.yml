@@ -42,6 +42,12 @@ jobs:
           fi
           echo "skip=$skip" >> "$GITHUB_OUTPUT"
 
+      # Verify rather than assume. On PR #1 this step reported success while requesting nothing:
+      # the endpoint answers 200 with the unmodified pull request when it declines to add Copilot
+      # -- which is what happens if Copilot code review is not enabled for the repository -- so an
+      # exit status says only that the call was well-formed. The `|| echo` made it worse by
+      # swallowing the one signal that was left. Read the response back instead: if Copilot is not
+      # among the requested reviewers afterwards, the gate has not done its job and should say so.
       - name: Request Copilot as reviewer
         if: steps.decide.outputs.skip == 'false'
         env:
@@ -49,12 +55,21 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
           gh api \
             --method POST \
             -H "Accept: application/vnd.github+json" \
             "/repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
-            -f 'reviewers[]=Copilot' \
-            || echo "Note: request_reviewers returned non-zero; Copilot may already be assigned. Safe to ignore."
+            -f 'reviewers[]=Copilot' > /dev/null
+          if gh api "/repos/$REPO/pulls/$PR_NUMBER" \
+               --jq '[.requested_reviewers[].login] | any(. == "Copilot")' | grep -qx true; then
+            echo "Copilot is requested as a reviewer."
+          else
+            echo "::error::Copilot was not added as a reviewer. The request endpoint accepted the" \
+                 "call and changed nothing, which usually means Copilot code review is not enabled" \
+                 "for $REPO (Settings -> Copilot -> Code review). Enable it, or mark the PR [no-ccr]."
+            exit 1
+          fi
 
       - name: Remove Copilot as reviewer
         if: steps.decide.outputs.skip == 'true'
