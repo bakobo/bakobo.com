@@ -21,9 +21,26 @@ behavior and invariants rather than a line-coverage number.
 ## CI and Documentation
 
 CI lives in `.github/workflows/pages.yml`: it runs the test suite on every push
-and pull request, and deploys to GitHub Pages from `main` once tests pass. The
-`README.md` carries the status badge and the fresh-clone-to-passing-tests steps;
-keep both current as the site evolves.
+and pull request, and deploys to GitHub Pages from `main` once tests pass. A
+second workflow, `.github/workflows/wellknown-drift.yml`, runs daily and on pull
+requests that touch `.well-known/`; it re-fetches every published OOBI and fails
+if the committed bytes no longer match what the witness serves. It is separate
+from the deploy on purpose — it needs network to four hosts on three continents,
+and a restarting witness must not fail an unrelated deploy. The `README.md`
+carries both status badges and the fresh-clone-to-passing-tests steps; keep them
+current as the site evolves.
+
+## The `.well-known/` tree is generated — never hand-edit it
+
+Everything under `.well-known/` is build output from `wellknown/bin/gen-wellknown`
+in the **private `bakobo/infra` repo**, which reads the witness hostnames from
+OpenTofu state and each AID from the inception event that witness serves. If you
+need to change what is published, change the generator there and regenerate; a
+fix applied here is overwritten on the next run and, worse, breaks the byte-exact
+copy the OOBI signatures depend on. The reasoning is in `this.i` — `@mwa7fvu6`
+(nothing hand-typed), `@klykqkst` (why the generator is in the other repo), and
+`@lbk6u4ru` (why the published wording says availability rather than
+accountability, and why it needs Daniel's approval before it changes).
 
 When writing or modifying GitHub Actions workflows, always use the latest
 stable release of each action. Avoid versions pinned to Node.js 16 or
