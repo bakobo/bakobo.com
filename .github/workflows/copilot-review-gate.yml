@@ -90,10 +90,22 @@ jobs:
           # throughout. Polling it is how this was mis-diagnosed twice as an entitlement problem.
           # The timeline records a `review_requested` event immediately and keeps it, which is the
           # evidence that the request actually took.
+          #
+          # But the timeline is APPEND-ONLY, so "has ever been requested" is not "is requested now":
+          # a removal adds a `review_request_removed` event rather than retracting the request. An
+          # earlier form asked only whether a request had ever appeared, which meant that once a PR
+          # went to draft or took a [no-ccr] label, the gate believed Copilot was still assigned and
+          # silently declined to re-request it on the way back -- breaking exactly the flows the
+          # remove step exists to support. Take the LAST event for this reviewer instead.
+          #
+          # --slurp because --paginate applies --jq per page, so a >100-event timeline would emit
+          # one verdict per page and could answer from a page that predates the removal. The two
+          # flags cannot be combined with --jq, hence the pipe.
           requested() {
-            gh api "/repos/$REPO/issues/$PR_NUMBER/timeline" --paginate \
-              --jq '[.[] | select(.event == "review_requested") | .requested_reviewer.login // empty]
-                    | map(ascii_downcase) | any(startswith("copilot"))'
+            gh api "/repos/$REPO/issues/$PR_NUMBER/timeline" --paginate --slurp \
+              | jq -r '[.[][] | select((.event == "review_requested" or .event == "review_request_removed")
+                                       and ((.requested_reviewer.login // "") | ascii_downcase | startswith("copilot")))]
+                       | last | (.event // "") == "review_requested"'
           }
 
           # Already assigned is the one outcome the old `|| echo` was actually written for.
@@ -122,7 +134,9 @@ jobs:
             sleep 5
           done
 
-          echo "::error::The API accepted the request but no review_requested event ever appeared, so Copilot was not asked. Copilot code review is probably unavailable for this repository. Do not paper over this -- either make it available, or delete this workflow rather than leave a review gate that reports success while asking nobody."
+          # Stable symbolic code per dev/standards/error-codes.md, so a failure is greppable across
+          # the fleet this workflow is vendored into. Permanent: retrying the same call cannot help.
+          echo "::error::[e.review.not_requested.f] The API accepted the request but no review_requested event ever appeared, so Copilot was not asked. Copilot code review is probably unavailable for this repository. Do not paper over this -- either make it available, or delete this workflow rather than leave a review gate that reports success while asking nobody."
           exit 1
 
       - name: Remove Copilot as reviewer
@@ -138,10 +152,11 @@ jobs:
           # Not assigned is the ordinary case here -- most PRs never had Copilot on them -- so it is
           # checked rather than swallowed, and a real API failure is still allowed to fail. Same
           # timeline caveat as the request step: requested_reviewers does not list this bot.
-          if [ "$(gh api "/repos/$REPO/issues/$PR_NUMBER/timeline" --paginate \
-                    --jq '[.[] | select(.event == "review_requested") | .requested_reviewer.login // empty]
-                          | map(ascii_downcase) | any(startswith("copilot"))')" != "true" ]; then
-            echo "Copilot was never requested on this PR. Nothing to remove."
+          if [ "$(gh api "/repos/$REPO/issues/$PR_NUMBER/timeline" --paginate --slurp \
+                    | jq -r '[.[][] | select((.event == "review_requested" or .event == "review_request_removed")
+                                             and ((.requested_reviewer.login // "") | ascii_downcase | startswith("copilot")))]
+                             | last | (.event // "") == "review_requested"')" != "true" ]; then
+            echo "Copilot is not currently a requested reviewer on this PR. Nothing to remove."
             exit 0
           fi
 
