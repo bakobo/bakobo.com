@@ -1,0 +1,48 @@
+name: well-known drift
+
+# The .well-known tree is generated in bakobo/infra and committed here (this.i @klykqkst), so it is
+# a static description of a live estate and can go quietly wrong between generator runs. This job
+# re-fetches every witness we publish and requires byte-identical bodies.
+#
+# Deliberately NOT part of the Pages workflow. It needs network to four hosts on three continents,
+# so a restarting witness would otherwise fail an unrelated deploy; here a red run means "look at
+# the estate", not "your change is broken". It runs on a schedule, on demand, and on pull requests
+# that touch the surface itself.
+#
+# It cannot detect a witness REMOVED from the estate -- a decommissioned host is absent from the
+# catalog this walks, so it is never asked about. That half lives in infra (@llwkkf4y there), which
+# is the only side with tofu access.
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  pull_request:
+    paths:
+      - ".well-known/**"
+      - "scripts/check_wellknown_live.py"
+      - ".github/workflows/wellknown-drift.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wellknown-drift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    name: published OOBIs still match their witness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+
+      # Standard library only, on purpose: this check has to keep working when nothing else does.
+      - name: check
+        run: python scripts/check_wellknown_live.py
