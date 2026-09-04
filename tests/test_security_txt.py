@@ -18,7 +18,7 @@ test job alongside tests/test_wellknown.py.
 from __future__ import annotations
 
 import datetime as dt
-import re
+import difflib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -44,7 +44,24 @@ def fields() -> dict[str, list[str]]:
 
 
 def expires_at() -> dt.datetime:
-    return dt.datetime.fromisoformat(fields()["expires"][0].replace("Z", "+00:00"))
+    """The single Expires value, or a readable assertion failure.
+
+    Every caller is a test, and a bare KeyError from a missing field would surface as a different
+    error in each of them depending on which pytest happened to run first. Failing here, once, with
+    a sentence, means a malformed file produces the same message whatever the execution order.
+    """
+    values = fields().get("expires", [])
+    assert len(values) == 1, (
+        f"Expected exactly one Expires field, found {len(values)}. RFC 9116 treats a file with "
+        "more than one as invalid, and one with none as incomplete."
+    )
+    try:
+        return dt.datetime.fromisoformat(values[0].replace("Z", "+00:00"))
+    except ValueError:
+        raise AssertionError(
+            f"Expires is {values[0]!r}, which is not an ISO 8601 timestamp. RFC 9116 requires the "
+            "format from RFC 3339, e.g. 2027-08-01T00:00:00.000Z."
+        ) from None
 
 
 def test_the_file_is_published_at_the_path_finders_fetch():
@@ -115,14 +132,30 @@ def test_the_file_is_ascii_and_uses_unix_line_endings():
     raw.decode("ascii")  # raises if not, which is the assertion
 
 
-def test_every_field_name_is_one_rfc_9116_defines():
-    known = {
+def test_no_field_name_is_a_near_miss_of_a_defined_one():
+    """Catch typos without forbidding extensions.
+
+    An earlier version of this test asserted a closed set and said RFC 9116 defines one. That is
+    wrong: §4 is explicitly about extensibility and consumers must ignore fields they do not
+    recognise, so a closed set here would reject a legitimate future field.
+
+    What is still worth catching is the failure the closed set was really aimed at. A typo like
+    `Contacts:` or `Expire:` does not fail — it parses as an extension field and is ignored, so the
+    contact address is simply absent while the file looks fine. That is a near miss of a known
+    name, which is distinguishable from a genuine extension precisely because it is nearly a known
+    name. Unknown-and-unlike anything is allowed through.
+    """
+    defined = [
         "acknowledgments", "canonical", "contact", "encryption", "expires",
         "hiring", "policy", "preferred-languages",
+    ]
+    suspects = {
+        name: difflib.get_close_matches(name, defined, n=1, cutoff=0.8)[0]
+        for name in fields()
+        if name not in defined and difflib.get_close_matches(name, defined, n=1, cutoff=0.8)
     }
-    unknown = set(fields()) - known
-    assert not unknown, (
-        f"Unrecognised field(s) {sorted(unknown)}. RFC 9116 defines a closed set, and a typo like "
-        "`Contacts:` parses as an extension field rather than failing, so the address would simply "
-        "not be there."
+    assert not suspects, (
+        "These field names are one small edit from a field RFC 9116 defines, which is what a typo "
+        f"looks like: {suspects}. A misspelled field is ignored rather than rejected, so the value "
+        "it was carrying is silently absent."
     )
