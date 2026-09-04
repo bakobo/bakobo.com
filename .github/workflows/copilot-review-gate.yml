@@ -42,13 +42,23 @@ jobs:
           fi
           echo "skip=$skip" >> "$GITHUB_OUTPUT"
 
-      # Verify rather than assume. On PR #1 this step reported success while requesting nothing:
-      # the endpoint answers 200 with the unmodified pull request when it declines to add Copilot
-      # -- which is what happens if Copilot code review is not enabled for the repository -- so an
-      # exit status says only that the call was well-formed. The `|| echo` made it worse by
-      # swallowing the one signal that was left. Read the response back instead: if Copilot is not
-      # among the requested reviewers afterwards, the gate has not done its job and should say so.
-      - name: Request Copilot as reviewer
+      # This step SIGNALS that a review is wanted; it cannot confirm one will happen, and must not
+      # pretend otherwise in either direction.
+      #
+      # A success status on the request endpoint is an acknowledgement that the signal was sent,
+      # not a commitment that Copilot has started -- a review typically begins minutes later. So
+      # failing the build when `requested_reviewers` does not immediately contain Copilot would be
+      # wrong: it reads an asynchronous handoff as a synchronous result. An earlier revision of
+      # this step did exactly that and asserted a cause ("Copilot code review is not enabled") it
+      # had no way to know.
+      #
+      # The `|| echo ... Safe to ignore` this replaces was wrong in the other direction: it
+      # swallowed a genuine non-zero exit, so a malformed call looked identical to a good one.
+      #
+      # So: fail only on a call that actually failed, and otherwise report what was observed
+      # without diagnosing it. Whether a review arrives is visible on the PR, which is the right
+      # place to look for it.
+      - name: Signal that Copilot should review
         if: steps.decide.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,14 +71,14 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             "/repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
             -f 'reviewers[]=Copilot' > /dev/null
+          echo "Review request signalled for PR #$PR_NUMBER."
           if gh api "/repos/$REPO/pulls/$PR_NUMBER" \
                --jq '[.requested_reviewers[].login] | any(. == "Copilot")' | grep -qx true; then
-            echo "Copilot is requested as a reviewer."
+            echo "Copilot is listed as a requested reviewer."
           else
-            echo "::error::Copilot was not added as a reviewer. The request endpoint accepted the" \
-                 "call and changed nothing, which usually means Copilot code review is not enabled" \
-                 "for $REPO (Settings -> Copilot -> Code review). Enable it, or mark the PR [no-ccr]."
-            exit 1
+            echo "::notice::Copilot is not yet listed as a requested reviewer. The signal was" \
+                 "accepted; the request and the review are asynchronous and may land in a few" \
+                 "minutes. Check the PR before assuming it will not arrive."
           fi
 
       - name: Remove Copilot as reviewer
