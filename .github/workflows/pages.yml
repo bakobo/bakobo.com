@@ -52,6 +52,7 @@ jobs:
             --exclude='.github' \
             --exclude='.tick' \
             --exclude='tests' \
+            --exclude='scripts' \
             --exclude='assets/social' \
             --exclude='pyproject.toml' \
             --exclude='uv.lock' \

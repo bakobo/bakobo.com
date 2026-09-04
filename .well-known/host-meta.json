@@ -1,0 +1,20 @@
+{
+  "subject": "https://bakobo.com",
+  "links": [
+    {
+      "rel": "https://bakobo.com/rels/oobi",
+      "template": "https://bakobo.com/.well-known/oobi/{said}/index.json",
+      "titles": {
+        "en": "Type-agnostic OOBI lookup by SAID/AID"
+      }
+    },
+    {
+      "rel": "https://bakobo.com/rels/discovery-catalog",
+      "type": "application/json",
+      "href": "https://bakobo.com/.well-known/oobi/index.json",
+      "titles": {
+        "en": "Generated discovery catalog (all OOBI resources)"
+      }
+    }
+  ]
+}
