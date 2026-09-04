@@ -98,13 +98,21 @@ jobs:
           # silently declined to re-request it on the way back -- breaking exactly the flows the
           # remove step exists to support. Take the LAST event for this reviewer instead.
           #
+          # Matched against the two forms this bot actually appears as, rather than any login
+          # beginning with "copilot", which would also match a human called copilotfan. The two
+          # forms are NOT interchangeable and both are needed: we POST
+          # `copilot-pull-request-reviewer[bot]`, but the timeline records the event under the bare
+          # login `Copilot` -- verified on infra #5, #16 and bakobo.com #4, all of which record
+          # `Copilot`. Comparing only against $REVIEWER finds zero events, which would make the
+          # gate re-request on every run and then hard-fail on every PR.
+          #
           # --slurp because --paginate applies --jq per page, so a >100-event timeline would emit
           # one verdict per page and could answer from a page that predates the removal. The two
           # flags cannot be combined with --jq, hence the pipe.
           requested() {
             gh api "/repos/$REPO/issues/$PR_NUMBER/timeline" --paginate --slurp \
-              | jq -r '[.[][] | select((.event == "review_requested" or .event == "review_request_removed")
-                                       and ((.requested_reviewer.login // "") | ascii_downcase | startswith("copilot")))]
+              | jq -r --arg rev "$REVIEWER" '[.[][] | select((.event == "review_requested" or .event == "review_request_removed")
+                                       and (((.requested_reviewer.login // "") | ascii_downcase) as $l | ($l == "copilot" or $l == ($rev | ascii_downcase))))]
                        | last | (.event // "") == "review_requested"'
           }
 
@@ -153,8 +161,8 @@ jobs:
           # checked rather than swallowed, and a real API failure is still allowed to fail. Same
           # timeline caveat as the request step: requested_reviewers does not list this bot.
           if [ "$(gh api "/repos/$REPO/issues/$PR_NUMBER/timeline" --paginate --slurp \
-                    | jq -r '[.[][] | select((.event == "review_requested" or .event == "review_request_removed")
-                                             and ((.requested_reviewer.login // "") | ascii_downcase | startswith("copilot")))]
+                    | jq -r --arg rev "$REVIEWER" '[.[][] | select((.event == "review_requested" or .event == "review_request_removed")
+                                             and (((.requested_reviewer.login // "") | ascii_downcase) as $l | ($l == "copilot" or $l == ($rev | ascii_downcase))))]
                              | last | (.event // "") == "review_requested"')" != "true" ]; then
             echo "Copilot is not currently a requested reviewer on this PR. Nothing to remove."
             exit 0
