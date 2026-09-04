@@ -145,3 +145,32 @@ def test_the_discovery_surface_is_not_linked_from_the_placeholder():
 def test_the_landing_page_asks_not_to_be_indexed():
     """A trust surface should be resolvable, not promoted into search results."""
     assert 'name="robots" content="noindex"' in (WELL_KNOWN / "index.html").read_text()
+
+
+# --- the deploy actually ships the dot-directory --------------------------
+
+def test_the_pages_workflow_does_not_use_upload_pages_artifact():
+    """It tars with --exclude=".[^/]*", which silently drops .well-known and .nojekyll.
+
+    The failure mode is the dangerous kind: the deploy goes green, the site looks fine, and the
+    discovery endpoint 404s. It cost this repo one live deploy, and bakobo/schema one before that
+    (its this.i @o6bw3k). The action offers no way to turn the exclusion off, so the only fix is
+    not to use it -- which makes its absence the thing worth asserting.
+    """
+    workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+    used = re.findall(r"^\s*(?:-\s*)?uses:\s*(\S+)", workflow, re.M)
+    assert not any("upload-pages-artifact" in action for action in used), used
+
+
+def test_the_pages_artifact_keeps_hidden_files():
+    """actions/upload-artifact drops dotfiles unless told otherwise, for the same net effect."""
+    workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+    assert "include-hidden-files" in workflow
+    assert "github-pages" in workflow  # deploy-pages only consumes an artifact of this name
+
+
+def test_the_deploy_does_not_exclude_the_discovery_surface():
+    """`scripts` and `tests` are excluded from the published site; `.well-known` must not be."""
+    workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+    assert "--exclude='.well-known'" not in workflow
+    assert "--exclude='scripts'" in workflow
