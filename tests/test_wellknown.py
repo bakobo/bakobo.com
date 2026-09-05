@@ -177,6 +177,26 @@ def test_v1_host_meta_carries_no_trace_of_v2():
     assert "delegat" not in blob and "strength" not in blob
 
 
+def test_external_lists_a_directory_and_republishes_no_identifier():
+    """this.i @6koo6gff: point at their catalog, never copy its contents."""
+    doc = v2()
+    assert doc["external"]
+    for e in doc["external"]:
+        assert e["strength"] == "hint"
+        assert e["catalog"].startswith("https://")
+    blob = json.dumps(doc)
+    for foreign in ("BDkq35LUU63xnFmfhljYYRY0ymkCg7goyeCxN30tsvmS",
+                    "EDP1vHcw_wc4M__Fj53-cJaBnZZASd-aMTaSyWEQ-PC2"):
+        assert foreign not in blob
+
+
+def test_external_disclaims_operation_and_relationship():
+    note = v2()["externalNote"].lower()
+    assert "no trust" in note
+    assert "does not operate" in note
+    assert "no relationship" in note
+
+
 # --- the deploy actually ships the dot-directory --------------------------
 
 def test_the_pages_workflow_does_not_use_upload_pages_artifact():
