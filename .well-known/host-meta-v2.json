@@ -33,5 +33,23 @@
       "strength": "hint"
     }
   ],
-  "delegationNote": "A delegation is a hint and conveys no trust. It records that Bakobo also publishes at the named origin, which saves a lookup; it is not an endorsement, and a consumer should evaluate that origin exactly as it would have without this document. Bakobo has incepted no organisational AID, so there is nothing to sign a stronger claim with and an unsigned one would be forgeable by anyone who could replace this file."
+  "delegationNote": "A delegation is a hint and conveys no trust. It records that Bakobo also publishes at the named origin, which saves a lookup; it is not an endorsement, and a consumer should evaluate that origin exactly as it would have without this document. Bakobo has incepted no organisational AID, so there is nothing to sign a stronger claim with and an unsigned one would be forgeable by anyone who could replace this file.",
+  "external": [
+    {
+      "name": "GLEIF",
+      "href": "https://gleif-it.github.io/.well-known/",
+      "catalog": "https://gleif-it.github.io/.well-known/oobi/index.json",
+      "types": [
+        "aid",
+        "schema",
+        "witness"
+      ],
+      "titles": {
+        "en": "GLEIF's KERI discovery catalog (mirrored at weboftrust.github.io)"
+      },
+      "rel": "https://bakobo.com/rels/external-directory",
+      "strength": "hint"
+    }
+  ],
+  "externalNote": "An external entry is a hint and conveys no trust. It records that another organisation publishes a discovery directory of its own, so a client can follow it; Bakobo does not operate those endpoints, does not vouch for what they contain, and being listed here implies no relationship between Bakobo and that organisation. Their identifiers are deliberately not republished here: a copy is a snapshot, and their directory is current."
 }
