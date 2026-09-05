@@ -157,3 +157,27 @@ Serve bakobo.com — a deliberately quiet page for humans, a load-bearing direct
         proposing them upstream first, which blocks our own endpoint on someone else's review cycle;
         bakobo/schema's @f7dr3k already positions Bakobo as a reference for discovery patterns, so
         publishing a working v2 and then proposing it is the stronger order.
+      children:
+
+        Delegation is a hint, and says so in the document = decision:
+          id: bio6glms
+          stage-status: planned
+          why: >
+            The first piece of @uymk2j6q to be built, and the choice is what "on our authority"
+            means to a consumer rather than what the JSON looks like. Two readings were on the
+            table. A HINT is a machine-readable pointer that saves a round trip and conveys no
+            trust: the consumer still evaluates schema.bakobo.com on its own terms, exactly as it
+            would have without us. An ENDORSEMENT is the apex vouching for the other origin, so
+            that trusting bakobo.com extends to trusting what it names. Chose the hint, and made
+            the choice explicit in the document as `"strength": "hint"` rather than leaving a
+            reader to infer it, because a delegation with no stated strength will be read as the
+            stronger one by anyone predisposed to.
+            The endorsement is not merely deferred for effort: it would be dishonest to publish
+            today. An endorsement is only worth what its signature is worth, and Bakobo has
+            incepted no organisational AID to sign with (@7vpcnhmt) -- so an unsigned assertion
+            that one origin vouches for another is a claim a network attacker can forge by
+            replacing the file, which is the same unauthenticated-directory problem @uymk2j6q
+            already names as GLEIF's conspicuous gap. Shipping the weak form now costs nothing and
+            forecloses nothing; the strong form waits for a key. Accepted tradeoff: consumers get
+            less than they might want from the apex, and @7ufzxzip's prose remains the only place
+            the relationship is asserted rather than merely indicated.

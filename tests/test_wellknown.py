@@ -147,6 +147,36 @@ def test_the_landing_page_asks_not_to_be_indexed():
     assert 'name="robots" content="noindex"' in (WELL_KNOWN / "index.html").read_text()
 
 
+# --- host-meta-v2: our additions, which must stay ignorable ---------------
+
+def v2() -> dict:
+    return json.loads((WELL_KNOWN / "host-meta-v2.json").read_text())
+
+
+def test_v2_delegation_declares_that_it_conveys_no_trust():
+    """this.i @bio6glms. Silence here would be read as the stronger claim."""
+    doc = v2()
+    assert doc["delegations"]
+    for d in doc["delegations"]:
+        assert d["strength"] == "hint"
+    assert "no trust" in doc["delegationNote"].lower()
+
+
+def test_v2_points_at_the_schema_registry_rather_than_re_serving_it():
+    """this.i @7ufzxzip: schemas stay at their own origin; the apex only indicates them."""
+    hrefs = [d["href"] for d in v2()["delegations"]]
+    assert "https://schema.bakobo.com/" in hrefs
+    assert set(catalog()["resources"]) == {"witness"}
+
+
+def test_v1_host_meta_carries_no_trace_of_v2():
+    """@sv6rtl3k: a consumer that has never heard of v2 must see an unchanged contract."""
+    v1 = json.loads((WELL_KNOWN / "host-meta.json").read_text())
+    assert set(v1) == {"subject", "links"}
+    blob = json.dumps(v1)
+    assert "delegat" not in blob and "strength" not in blob
+
+
 # --- the deploy actually ships the dot-directory --------------------------
 
 def test_the_pages_workflow_does_not_use_upload_pages_artifact():
