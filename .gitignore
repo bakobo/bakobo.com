@@ -1,5 +1,3 @@
-/.tick
-.tick.lock
 
 # Python test tooling (the site itself ships no Python)
 .venv/
