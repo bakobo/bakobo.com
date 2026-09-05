@@ -1,0 +1,37 @@
+{
+  "subject": "https://bakobo.com",
+  "profile": "https://bakobo.com/rels/well-known-v2",
+  "updated": "2026-09-05",
+  "links": [
+    {
+      "rel": "https://bakobo.com/rels/oobi",
+      "template": "https://bakobo.com/.well-known/oobi/{said}/index.json",
+      "titles": {
+        "en": "Type-agnostic OOBI lookup by SAID/AID"
+      }
+    },
+    {
+      "rel": "https://bakobo.com/rels/discovery-catalog",
+      "type": "application/json",
+      "href": "https://bakobo.com/.well-known/oobi/index.json",
+      "titles": {
+        "en": "Generated discovery catalog (all OOBI resources)"
+      }
+    }
+  ],
+  "delegations": [
+    {
+      "rel": "https://bakobo.com/rels/delegated-origin",
+      "strength": "hint",
+      "href": "https://schema.bakobo.com/",
+      "manifest": "https://schema.bakobo.com/.well-known/acdc-schemas.json",
+      "types": [
+        "schema"
+      ],
+      "titles": {
+        "en": "ACDC credential schemas, published by Bakobo at a separate origin"
+      }
+    }
+  ],
+  "delegationNote": "A delegation is a hint and conveys no trust. It records that Bakobo also publishes at the named origin, which saves a lookup; it is not an endorsement, and a consumer should evaluate that origin exactly as it would have without this document. Bakobo has incepted no organisational AID, so there is nothing to sign a stronger claim with and an unsigned one would be forgeable by anyone who could replace this file."
+}
