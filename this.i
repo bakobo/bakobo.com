@@ -181,3 +181,32 @@ Serve bakobo.com — a deliberately quiet page for humans, a load-bearing direct
             forecloses nothing; the strong form waits for a key. Accepted tradeoff: consumers get
             less than they might want from the apex, and @7ufzxzip's prose remains the only place
             the relationship is asserted rather than merely indicated.
+
+        An external section points at directories, never at their contents = decision:
+          id: 6koo6gff
+          stage-status: planned
+          why: >
+            Supersedes @v7rjsabf, which said no external section at all. That decision was right on
+            its facts — GLEIF had dropped theirs and there was nothing to link to — and the fact
+            changed: GLEIF publishes a live, self-maintained catalog at
+            gleif-it.github.io/.well-known/oobi/index.json. So the section returns, pointing at
+            their DIRECTORY rather than copying its entries.
+            The distinction is the whole decision. Populating an external section with other
+            organisations' witness AIDs was considered and rejected on three grounds, in descending
+            order. A credential dump yields AIDs and no endpoints — 365 messages, zero rpy or
+            endRole records, two URLs in 383 KB and both of them specification links — so half the
+            witnesses recoverable that way are identifiers nobody can reach, which is precisely
+            what publishing `hostname` in our own catalog exists to avoid. Witness sets rotate by
+            br/ba, so a copied set is a snapshot of somebody else's estate that we cannot refresh
+            and cannot police: @mwa7fvu6 and @llwkkf4y are what make our own surface trustworthy
+            and neither can be pointed at an estate we do not run. And a directory maintained by
+            its owner is fresh by construction, which a copy never is.
+            bakobo/schema reached the same answer one domain over: @f7dr3k's federation.json is a
+            curated list of REGISTRIES carrying a resolution type, not an aggregation of their
+            schemas. Same shape, same reason.
+            Entries are hints under @bio6glms, so this asserts nothing about GLEIF beyond the
+            observable fact that they publish a directory. Deliberately listing only organisations
+            that HAVE one: Provenant's witnesses appear in the same dump and no published directory
+            for them could be found at any plausible URL, and recording another organisation's
+            absence on our own trust surface is a claim that is not ours to publish. Accepted
+            tradeoff: the section is thin, and stays thin until peers publish.
