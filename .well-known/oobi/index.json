@@ -2,7 +2,7 @@
   "name": "Bakobo OOBI Discovery Catalog",
   "description": "Generated inventory of every OOBI resource published at bakobo.com, grouped by type. GET /.well-known/oobi/<SAID>/index.json to resolve any one by SAID/AID without knowing its type. Discoverable via /.well-known/host-meta.json. Bakobo operates every witness listed here and also controls the AIDs they witness, so a receipt from this pool establishes that an event was witnessed and is being served -- it is evidence of availability, not of controller-accountability. A validator who needs protection against a controller colluding with its own witnesses must get it from a process under that validator's control, not from these receipts. Bakobo has incepted no organisational AIDs yet, so this catalog lists witnesses only; ACDC schemas are published separately at https://schema.bakobo.com/",
   "generator": "bakobo/infra wellknown/gen_wellknown.py",
-  "updated": "2026-09-04",
+  "updated": "2026-09-05",
   "count": 4,
   "organization": "Bakobo",
   "contact": "https://bakobo.com/",
