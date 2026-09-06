@@ -30,9 +30,19 @@ and a restarting witness must not fail an unrelated deploy. The `README.md`
 carries both status badges and the fresh-clone-to-passing-tests steps; keep them
 current as the site evolves.
 
-## The `.well-known/` tree is generated — never hand-edit it
+## The `.well-known/` tree is generated — never hand-edit it, with one named exception
 
-Everything under `.well-known/` is build output from `wellknown/bin/gen-wellknown`
+`security.txt` is the exception, and it is the only one. It is hand-maintained here on purpose:
+RFC 9116's mandatory `Expires` field is a claim that a human still reads the address, so the date
+is committed and `tests/test_security_txt.py` fails thirty days before it lapses. Generating it
+would move that date into a generator and further from the test that guards it, and a
+self-renewing expiry would keep asserting the mailbox is monitored after that stopped being true —
+which is the one thing the field exists to communicate (infra `@qo7v2zwr`). The generator does not
+touch it: it rebuilds only `.well-known/oobi/`, which is the sole subtree it removes
+(`wellknown/gen_wellknown.py:472` in `bakobo/infra`), and infra's own suite asserts that a
+pre-existing `security.txt` survives a run.
+
+Everything else under `.well-known/` is build output from `wellknown/bin/gen-wellknown`
 in the **private `bakobo/infra` repo**, which reads the witness hostnames from
 OpenTofu state and each AID from the inception event that witness serves. If you
 need to change what is published, change the generator there and regenerate; a
