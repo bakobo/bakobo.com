@@ -52,6 +52,7 @@ jobs:
             --exclude='.github' \
             --exclude='.tick' \
             --exclude='tests' \
+            --exclude='scripts' \
             --exclude='assets/social' \
             --exclude='pyproject.toml' \
             --exclude='uv.lock' \
@@ -68,8 +69,24 @@ jobs:
             ./ _site/
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+
+      # We do NOT use actions/upload-pages-artifact. It tars the site with
+      # `--exclude=".[^/]*"`, which drops every top-level dot-entry and would silently strip both
+      # `.well-known/` and `.nojekyll` -- the deploy goes green and the discovery endpoint 404s,
+      # which is exactly what happened on the first deploy of this endpoint. The action exposes no
+      # option to disable it. So we build the identical `github-pages` artifact ourselves: a plain
+      # tar of _site excluding only .git. The Pages CDN serves `.well-known` fine; the action was
+      # the only barrier. bakobo/schema hit this first and reached the same fix (its this.i
+      # @o6bw3k). `include-hidden-files` is load-bearing for the same reason.
+      - name: Archive the site as the github-pages artifact (keeping .well-known)
+        run: |
+          tar --dereference --hard-dereference --directory _site \
+            -cf "$RUNNER_TEMP/artifact.tar" --exclude=.git .
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          path: _site
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: "1"
+          include-hidden-files: "true"
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

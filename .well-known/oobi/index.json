@@ -1,0 +1,33 @@
+{
+  "name": "Bakobo OOBI Discovery Catalog",
+  "description": "Generated inventory of every OOBI resource published at bakobo.com, grouped by type. GET /.well-known/oobi/<SAID>/index.json to resolve any one by SAID/AID without knowing its type. Discoverable via /.well-known/host-meta.json. Bakobo operates every witness listed here and also controls the AIDs they witness, so a receipt from this pool establishes that an event was witnessed and is being served -- it is evidence of availability, not of controller-accountability. A validator who needs protection against a controller colluding with its own witnesses must get it from a process under that validator's control, not from these receipts. Bakobo has incepted no organisational AIDs yet, so this catalog lists witnesses only; ACDC schemas are published separately at https://schema.bakobo.com/",
+  "generator": "bakobo/infra wellknown/gen_wellknown.py",
+  "updated": "2026-09-05",
+  "count": 4,
+  "organization": "Bakobo",
+  "contact": "https://bakobo.com/",
+  "resources": {
+    "witness": {
+      "BB-Z6rOpcsSK1lzSPgAB3rfmhrYonw32XrElJWQBAEtT": {
+        "oobi": "/.well-known/oobi/BB-Z6rOpcsSK1lzSPgAB3rfmhrYonw32XrElJWQBAEtT/index.json",
+        "name": "br",
+        "hostname": "br.wit.bakobo.com"
+      },
+      "BFCTpY5IX6JrSri5gHZ0p3AeIXNl8vpFyo8aXX-wD3IB": {
+        "oobi": "/.well-known/oobi/BFCTpY5IX6JrSri5gHZ0p3AeIXNl8vpFyo8aXX-wD3IB/index.json",
+        "name": "de",
+        "hostname": "de.wit.bakobo.com"
+      },
+      "BIen8GwnCDRSFJ7osngxZcNaGSiX0TuKLN2dKmPR0IqN": {
+        "oobi": "/.well-known/oobi/BIen8GwnCDRSFJ7osngxZcNaGSiX0TuKLN2dKmPR0IqN/index.json",
+        "name": "ca",
+        "hostname": "ca.wit.bakobo.com"
+      },
+      "BMa4S9OFAQWr78MbDT-HobVWcF2dyZLqtnkG8IoRi388": {
+        "oobi": "/.well-known/oobi/BMa4S9OFAQWr78MbDT-HobVWcF2dyZLqtnkG8IoRi388/index.json",
+        "name": "jp",
+        "hostname": "jp.wit.bakobo.com"
+      }
+    }
+  }
+}
