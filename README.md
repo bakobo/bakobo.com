@@ -1,10 +1,15 @@
 # bakobo.com
 
 [![Pages](https://github.com/bakobo/bakobo.com/actions/workflows/pages.yml/badge.svg)](https://github.com/bakobo/bakobo.com/actions/workflows/pages.yml)
+[![well-known drift](https://github.com/bakobo/bakobo.com/actions/workflows/wellknown-drift.yml/badge.svg)](https://github.com/bakobo/bakobo.com/actions/workflows/wellknown-drift.yml)
 
 The corporate website for **Bakobo LLC** — currently a stealth-mode placeholder.
 One page: the brand, the rallying cry (*Act. Don't be acted upon.*), and a way
 to reach us. No product details, by design.
+
+It also serves a machine-readable discovery endpoint at `/.well-known/`. That is
+not a contradiction: stealth here covers product strategy, not the technology
+stack (`this.i` `@feshtwgl`).
 
 It's a hand-authored static site (no site generator) styled from the Bakobo
 brand kit, deployed to GitHub Pages at **https://bakobo.com/**.
@@ -20,7 +25,23 @@ brand kit, deployed to GitHub Pages at **https://bakobo.com/**.
 | `assets/social/card.html` | reproducible generator for the 1200×630 social card |
 | `robots.txt`, `sitemap.xml` | pure-signal SEO |
 | `CNAME`, `.nojekyll` | Pages custom domain + verbatim asset serving |
-| `tests/` | stdlib + pytest checks (assets resolve, SEO/JSON-LD valid, card is 1200×630, no stealth leaks) |
+| `.well-known/` | **generated, do not hand-edit** — KERI discovery surface (host-meta, per-AID OOBIs, catalog, landing page); produced by `wellknown/bin/gen-wellknown` in the private `infra` repo |
+| `scripts/` | `check_wellknown_live.py` — re-fetches every published OOBI and requires byte-identical bodies (not deployed) |
+| `this.i` | the intent tree: why the endpoint exists, what it claims, and what it deliberately omits |
+| `tests/` | stdlib + pytest checks (assets resolve, SEO/JSON-LD valid, card is 1200×630, no stealth leaks, discovery surface self-consistent) |
+
+## The `.well-known` discovery surface
+
+Everything under `.well-known/` is build output. The witness hostnames come from OpenTofu state and
+each witness's AID comes from the inception event it serves, so nothing in the tree is hand-typed
+(`this.i` `@mwa7fvu6`). The generator lives in `bakobo/infra` rather than here because it reads
+estate credentials and this repo is public; regenerate with `wellknown/bin/gen-wellknown --out
+<this checkout>` there, and land the result as a PR here.
+
+Two guards watch it, and they catch different failures. `scripts/check_wellknown_live.py` (run daily
+by `.github/workflows/wellknown-drift.yml`) proves the committed bytes still match what each witness
+serves. It cannot see a witness *removed* from the estate, because a decommissioned host is absent
+from the catalog it walks — that half runs in `infra`, which is the only side with tofu access.
 
 ## Fresh clone → passing tests
 
