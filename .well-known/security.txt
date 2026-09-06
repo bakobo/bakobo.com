@@ -1,0 +1,11 @@
+# Where to report a vulnerability in anything Bakobo runs.
+#
+# RFC 9116. Expires is mandatory and is deliberately a date a person has to renew rather than one a
+# build step refreshes: the field exists so a finder knows someone still reads the mailbox, and a
+# file that renewed itself forever would keep making that promise after it stopped being true.
+# tests/test_security_txt.py fails thirty days before this date, which is the reminder.
+
+Contact: mailto:security@bakobo.com
+Expires: 2027-08-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://bakobo.com/.well-known/security.txt
