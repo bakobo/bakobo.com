@@ -147,6 +147,19 @@ def test_the_landing_page_asks_not_to_be_indexed():
     assert 'name="robots" content="noindex"' in (WELL_KNOWN / "index.html").read_text()
 
 
+def test_the_landing_page_wears_the_site_stylesheet_rather_than_its_own():
+    """Styling this page from /assets/css means a brand fix reaches it without a regenerate.
+
+    The generator in bakobo/infra used to inline a <style> block, which made this page the
+    one surface on the site whose look could not be corrected from here. If a later
+    regenerate brings the block back, the page silently stops following the brand.
+    """
+    page = (WELL_KNOWN / "index.html").read_text()
+    assert "/assets/css/tokens.css" in page
+    assert "/assets/css/page.css" in page
+    assert "<style" not in page
+
+
 # --- host-meta-v2: our additions, which must stay ignorable ---------------
 
 def v2() -> dict:

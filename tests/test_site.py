@@ -120,10 +120,29 @@ def _local_refs(html: str) -> set[str]:
     return refs
 
 
+def _pages() -> list[Path]:
+    """Every HTML page this repo publishes."""
+    skip = {".git", ".venv", ".worktrees", ".pytest_cache", ".tick"}
+    return sorted(
+        p
+        for p in ROOT.rglob("*.html")
+        if not any(part in skip for part in p.relative_to(ROOT).parts)
+    )
+
+
 def test_all_root_relative_assets_exist():
-    for ref in _local_refs(read("index.html")):
-        target = ROOT / ref.lstrip("/")
-        assert target.is_file(), f"missing asset referenced in index.html: {ref}"
+    """Every page, not just the placeholder: pages that share a stylesheet share this risk.
+
+    A content page under .well-known/ links /assets/css/page.css from another repo's
+    generator, so the reference and the file it names move independently. Missing, the page
+    still returns 200 -- it just arrives unstyled, which no other check here would notice.
+    """
+    pages = _pages()
+    assert len(pages) > 1, "expected more than the placeholder; did the walk stop working?"
+    for page in pages:
+        for ref in _local_refs(page.read_text(encoding="utf-8")):
+            target = ROOT / ref.lstrip("/")
+            assert target.is_file(), f"missing asset referenced in {page.relative_to(ROOT)}: {ref}"
 
 
 def test_favicon_at_web_root():

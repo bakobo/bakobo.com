@@ -1,0 +1,365 @@
+/* Bakobo — the content-page stylesheet.
+   Link it next to tokens.css, which carries the palette:
+
+     <link rel="stylesheet" href="/assets/css/tokens.css">
+     <link rel="stylesheet" href="/assets/css/page.css">
+
+   plus the Noto Sans / Noto Sans Mono <link> that index.html already uses, since
+   this site does not deploy font files of its own.
+
+   Sections 1 and 2 are vendored from bakobo/brand @ 6b4217b (css/base.css and
+   css/layout.css, tiers 2 and 3), concatenated rather than @import-ed so a page
+   costs two requests instead of a four-deep serial chain. Section 1 drops
+   brand's @font-face block, which self-hosts from a ../fonts/ directory this
+   site does not have. Section 3 is ours.
+
+   The landing page does not use this file — it pins dark and has its own
+   site.css. This is for everything else: quieter ground, ordinary headings,
+   and it follows the browser's light/dark preference rather than pinning
+   either one. */
+
+/* ===========================================================================
+   1. Base typography — bakobo/brand css/base.css (tier 2)
+   =========================================================================== */
+
+:root { color-scheme: light dark; }
+
+html { font-size: 16px; }  /* ~12 pt body baseline */
+
+body {
+  margin: 0;
+  background: var(--bk-bg);
+  color: var(--bk-text);
+  font-family: var(--bk-font-sans);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* a theme-scope element applies its own ground + text (otherwise the subtree
+   would inherit body's already-computed color and the flip wouldn't take) */
+.bk-light, .bk-dark { background: var(--bk-bg); color: var(--bk-text); }
+
+h1, h2, h3, h4, h5, h6 { font-family: var(--bk-font-sans); line-height: 1.2; margin: 1.4em 0 0.5em; }
+h1 { font-size: 2rem; font-weight: 700; color: var(--bk-accent); }
+h2 { font-size: 1.5rem; font-weight: 600; color: var(--bk-muted); }
+h3 { font-size: 1.2rem; font-weight: 600; color: var(--bk-text); }
+h4 { font-size: 1rem; font-weight: 600; color: var(--bk-text); }
+
+/* in dark, headings switch to the bright neutral (Mist) while body text stays
+   the softer Stone, so headers read brighter than the body */
+.bk-dark h1, .bk-dark h2, .bk-dark h3, .bk-dark h4 { color: var(--bk-mist); }
+@media (prefers-color-scheme: dark) {
+  :root:not(.bk-light) h1, :root:not(.bk-light) h2,
+  :root:not(.bk-light) h3, :root:not(.bk-light) h4 { color: var(--bk-mist); }
+}
+
+p { margin: 0 0 1em; }
+strong, b { color: var(--bk-primary); font-weight: 600; }
+
+a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+a:hover { text-decoration-color: var(--bk-accent); }
+
+code, pre, kbd, samp { font-family: var(--bk-font-mono); font-size: 0.9em; }
+code { background: var(--bk-surface); padding: 0.1em 0.35em; border-radius: 4px; }
+pre {
+  background: var(--bk-surface);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  overflow: auto;
+  line-height: 1.45;
+}
+pre code { background: none; padding: 0; }
+
+blockquote {
+  margin: 1em 0;
+  padding: 0.2em 0 0.2em 1em;
+  border-left: 4px solid var(--bk-primary);
+  color: var(--bk-muted);
+}
+
+table { border-collapse: collapse; width: 100%; }
+th, td { border-bottom: 1px solid var(--bk-border); padding: 0.45em 0.7em; text-align: left; }
+th { color: var(--bk-accent); font-weight: 600; }
+
+ul, ol { padding-left: 1.3em; }
+li { margin: 0.2em 0; }
+li::marker { color: var(--bk-primary); }
+
+hr { border: none; border-top: 1px solid var(--bk-border); margin: 2em 0; }
+
+::selection { background: var(--bk-blush); color: var(--bk-ink); }
+
+img, svg { max-width: 100%; height: auto; }
+
+/* ===========================================================================
+   2. Adaptive layout — bakobo/brand css/layout.css (tier 3)
+   =========================================================================== */
+
+:root {
+  /* spacing scale */
+  --bk-space-1: 0.25rem;
+  --bk-space-2: 0.5rem;
+  --bk-space-3: 1rem;
+  --bk-space-4: 1.5rem;
+  --bk-space-5: 2.5rem;
+  --bk-space-6: 4rem;
+
+  --bk-radius: 12px;
+  --bk-measure: 70ch;          /* comfortable reading width */
+  --bk-container: min(72rem, 92vw);
+}
+
+/* centered content column */
+.bk-container {
+  width: var(--bk-container);
+  margin-inline: auto;
+  padding-inline: var(--bk-space-3);
+}
+
+/* a readable prose column */
+.bk-prose { max-width: var(--bk-measure); }
+
+/* vertical rhythm: space between stacked children */
+.bk-stack > * + * { margin-top: var(--bk-space-3); }
+.bk-stack-lg > * + * { margin-top: var(--bk-space-5); }
+
+/* responsive auto-grid */
+.bk-grid {
+  display: grid;
+  gap: var(--bk-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+/* a surface card */
+.bk-card {
+  background: var(--bk-surface);
+  border-radius: var(--bk-radius);
+  padding: var(--bk-space-4);
+}
+
+/* primary action */
+.bk-button {
+  display: inline-block;
+  background: var(--bk-primary);
+  color: var(--bk-paper);
+  font-weight: 600;
+  text-decoration: none;
+  padding: var(--bk-space-2) var(--bk-space-4);
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+.bk-button:hover { filter: brightness(0.95); }
+
+/* full-bleed section with the warm surface background */
+.bk-band {
+  background: var(--bk-surface);
+  padding-block: var(--bk-space-6);
+}
+
+/* utilities */
+.bk-center { text-align: center; }
+.bk-muted { color: var(--bk-muted); }
+
+@media (min-width: 48rem) {
+  :root { --bk-space-6: 6rem; }
+}
+
+/* ===========================================================================
+   3. Content-page posture — bakobo.com
+
+   The same family as the landing page, two steps quieter: the campfire glow
+   drops from 18% alpha to 11%, the headline stops shouting, and Clay stops
+   carrying text and becomes an accent — the hairline at the top of the page,
+   the callout's edge, list markers, the focus ring.
+   =========================================================================== */
+
+:root {
+  --bk-page: min(56rem, 100% - 2.5rem);
+  --bk-rule: color-mix(in srgb, var(--bk-stone) 32%, transparent);
+  /* Against Paper, Stone is 3.8:1 and Clay only 2.5:1, so neither may carry
+     small text in light mode — Umber (6.4:1) does the quiet-text and link work
+     instead. In dark mode the brand roles already clear AA, so the dark scope
+     restores them. */
+  --bk-quiet: var(--bk-umber);
+  --bk-link: var(--bk-umber);
+  --bk-link-visited: var(--bk-espresso);
+  --bk-heading-2: var(--bk-ink);
+}
+.bk-dark {
+  --bk-rule: color-mix(in srgb, var(--bk-stone) 28%, transparent);
+  --bk-quiet: var(--bk-stone);
+  --bk-link: var(--bk-clay);
+  --bk-link-visited: var(--bk-blush);
+  --bk-heading-2: var(--bk-mist);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bk-light) {
+    --bk-rule: color-mix(in srgb, var(--bk-stone) 28%, transparent);
+    --bk-quiet: var(--bk-stone);
+    --bk-link: var(--bk-clay);
+    --bk-link-visited: var(--bk-blush);
+    --bk-heading-2: var(--bk-mist);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  min-height: 100svh;
+  /* a warm ground rather than a white slab */
+  background-image: radial-gradient(85% 55% at 85% -8%,
+    rgba(239, 139, 87, 0.11) 0%,
+    rgba(222, 193, 177, 0.13) 38%,
+    rgba(255, 255, 255, 0) 72%);
+  background-attachment: fixed;
+  /* the one line of Clay that says "same site as the landing page" */
+  border-top: 3px solid var(--bk-primary);
+}
+.bk-dark body { background-image: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not(.bk-light) body {
+    background-image: radial-gradient(90% 60% at 80% -10%,
+      rgba(239, 139, 87, 0.10) 0%,
+      rgba(74, 43, 27, 0.35) 42%,
+      rgba(0, 0, 0, 0) 75%);
+  }
+}
+
+/* ---- page frame --------------------------------------------------------- */
+
+.bk-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - 3px);
+  width: var(--bk-page);
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 3vh, 2rem);
+}
+
+.bk-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: clamp(0.9rem, 2vw, 1.25rem);
+  border-bottom: 1px solid var(--bk-rule);
+}
+.bk-masthead a { display: block; line-height: 0; }
+.bk-masthead img,
+.bk-masthead svg { height: clamp(1.5rem, 3.6vw, 1.85rem); width: auto; }
+.bk-masthead__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bk-quiet);
+  white-space: nowrap;
+}
+
+.bk-main { flex: 1 1 auto; padding-block: clamp(1.5rem, 4vw, 2.75rem); }
+
+/* ---- content type ------------------------------------------------------- */
+
+.bk-main > * { max-width: var(--bk-measure); }
+.bk-main h1 {
+  margin-top: 0;
+  font-size: clamp(1.8rem, 4vw, 2.35rem);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.bk-main h2 {
+  font-size: clamp(1.15rem, 2.2vw, 1.35rem);
+  color: var(--bk-heading-2);
+  margin-top: 2.2em;
+}
+.bk-lede { font-size: 1.08rem; }
+
+a { color: var(--bk-link); text-decoration-color: color-mix(in srgb, var(--bk-primary) 70%, transparent); }
+a:visited { color: var(--bk-link-visited); }
+a:hover { text-decoration-color: var(--bk-primary); text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--bk-primary); outline-offset: 3px; border-radius: 2px; }
+
+strong, b { color: var(--bk-text); font-weight: 600; }
+
+/* long identifiers must wrap rather than widen the page */
+code { overflow-wrap: anywhere; }
+
+/* code inside a heading is already set apart by the mono face; the chip
+   background just makes the heading look patched */
+h1 code, h2 code, h3 code { background: none; padding: 0; color: inherit; font-size: 0.92em; }
+
+/* ---- a called-out caveat ------------------------------------------------ */
+
+.bk-note {
+  background: var(--bk-surface);
+  border-left: 3px solid var(--bk-primary);
+  border-radius: 0 var(--bk-radius) var(--bk-radius) 0;
+  padding: clamp(1rem, 2.5vw, 1.35rem) clamp(1.1rem, 3vw, 1.5rem);
+  margin-block: clamp(1.75rem, 4vw, 2.5rem);
+}
+.bk-note > h2 { margin-top: 0; }
+.bk-note > p:last-child { margin-bottom: 0; }
+
+/* ---- a list of machine-readable things ---------------------------------- */
+
+.bk-entries {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.25rem 0 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.bk-entries > li {
+  margin: 0;
+  border: 1px solid var(--bk-rule);
+  border-radius: var(--bk-radius);
+  padding: 0.85rem 1.05rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+}
+.bk-entries__name { font-weight: 600; color: var(--bk-text); }
+.bk-entries__name code { background: none; padding: 0; color: var(--bk-accent); font-weight: 600; }
+.bk-entries__id {
+  flex: 1 1 22rem;
+  font-family: var(--bk-font-mono);
+  font-size: 0.82rem;
+  color: var(--bk-quiet);
+  overflow-wrap: anywhere;
+}
+.bk-entries__link { font-size: 0.85rem; }
+
+/* ---- footer ------------------------------------------------------------- */
+
+.bk-footer {
+  margin-top: auto;
+  padding-top: clamp(1.1rem, 3vw, 1.6rem);
+  border-top: 1px solid var(--bk-rule);
+  color: var(--bk-quiet);
+  font-size: 0.88rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 1.5rem;
+}
+.bk-footer p { margin: 0; }
+
+/* ---- print -------------------------------------------------------------- */
+
+@media print {
+  body { background: #fff; background-image: none; border-top: none; color: #000; }
+  .bk-page { width: auto; min-height: 0; }
+  .bk-note, .bk-entries > li { border: 1px solid #bbb; background: none; }
+  a { color: #000; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; color: #555; }
+}
