@@ -16,9 +16,14 @@
   --bk-bg: var(--bk-paper);
   --bk-surface: var(--bk-mist);
   --bk-text: var(--bk-ink);
-  --bk-muted: var(--bk-stone);
+  --bk-on-surface: var(--bk-ink);
+  --bk-muted: var(--bk-umber);
   --bk-primary: var(--bk-clay);
+  --bk-on-primary: var(--bk-espresso);
   --bk-accent: var(--bk-umber);
+  --bk-link: var(--bk-umber);
+  --bk-link-visited: var(--bk-espresso);
+  --bk-strong: var(--bk-espresso);
   --bk-border: var(--bk-stone);
 
   /* type */
@@ -32,9 +37,14 @@
     --bk-bg: var(--bk-pitch);
     --bk-surface: var(--bk-espresso);
     --bk-text: var(--bk-stone);
+    --bk-on-surface: var(--bk-sand);
     --bk-muted: var(--bk-stone);
     --bk-primary: var(--bk-clay);
+    --bk-on-primary: var(--bk-espresso);
     --bk-accent: var(--bk-blush);
+    --bk-link: var(--bk-clay);
+    --bk-link-visited: var(--bk-blush);
+    --bk-strong: var(--bk-blush);
     --bk-border: var(--bk-stone);
   }
 }
@@ -44,17 +54,27 @@
     --bk-bg: var(--bk-pitch);
     --bk-surface: var(--bk-espresso);
     --bk-text: var(--bk-stone);
+    --bk-on-surface: var(--bk-sand);
     --bk-muted: var(--bk-stone);
     --bk-primary: var(--bk-clay);
+    --bk-on-primary: var(--bk-espresso);
     --bk-accent: var(--bk-blush);
+    --bk-link: var(--bk-clay);
+    --bk-link-visited: var(--bk-blush);
+    --bk-strong: var(--bk-blush);
     --bk-border: var(--bk-stone);
 }
 .bk-light {
   --bk-bg: var(--bk-paper);
   --bk-surface: var(--bk-mist);
   --bk-text: var(--bk-ink);
-  --bk-muted: var(--bk-stone);
+  --bk-on-surface: var(--bk-ink);
+  --bk-muted: var(--bk-umber);
   --bk-primary: var(--bk-clay);
+  --bk-on-primary: var(--bk-espresso);
   --bk-accent: var(--bk-umber);
+  --bk-link: var(--bk-umber);
+  --bk-link-visited: var(--bk-espresso);
+  --bk-strong: var(--bk-espresso);
   --bk-border: var(--bk-stone);
 }

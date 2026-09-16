@@ -7,7 +7,7 @@
    plus the Noto Sans / Noto Sans Mono <link> that index.html already uses, since
    this site does not deploy font files of its own.
 
-   Sections 1 and 2 are vendored from bakobo/brand @ 6b4217b (css/base.css and
+   Sections 1 and 2 are vendored from bakobo/brand @ f754dd0 (css/base.css and
    css/layout.css, tiers 2 and 3), concatenated rather than @import-ed so a page
    costs two requests instead of a four-deep serial chain. Section 1 drops
    brand's @font-face block, which self-hosts from a ../fonts/ directory this
@@ -56,20 +56,26 @@ h4 { font-size: 1rem; font-weight: 600; color: var(--bk-text); }
 }
 
 p { margin: 0 0 1em; }
-strong, b { color: var(--bk-primary); font-weight: 600; }
+strong, b { color: var(--bk-strong); font-weight: 600; }
 
+/* Clay is the underline, not the letters: as text on Paper it is 2.47:1, well
+   under AA, so the link role carries the text and Clay keeps the accent. */
 a {
-  color: var(--bk-primary);
+  color: var(--bk-link);
   text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--bk-primary) 70%, transparent);
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
 }
-a:hover { text-decoration-color: var(--bk-accent); }
+a:visited { color: var(--bk-link-visited); }
+a:hover { text-decoration-color: var(--bk-primary); text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--bk-primary); outline-offset: 3px; border-radius: 2px; }
 
 code, pre, kbd, samp { font-family: var(--bk-font-mono); font-size: 0.9em; }
-code { background: var(--bk-surface); padding: 0.1em 0.35em; border-radius: 4px; }
+code { background: var(--bk-surface); color: var(--bk-on-surface); padding: 0.1em 0.35em; border-radius: 4px; }
 pre {
   background: var(--bk-surface);
+  color: var(--bk-on-surface);
   border-radius: 10px;
   padding: 1rem 1.1rem;
   overflow: auto;
@@ -140,15 +146,16 @@ img, svg { max-width: 100%; height: auto; }
 /* a surface card */
 .bk-card {
   background: var(--bk-surface);
+  color: var(--bk-on-surface);
   border-radius: var(--bk-radius);
   padding: var(--bk-space-4);
 }
 
-/* primary action */
+/* primary action — the label is Espresso, not Paper: white on Clay is 2.47:1 */
 .bk-button {
   display: inline-block;
   background: var(--bk-primary);
-  color: var(--bk-paper);
+  color: var(--bk-on-primary);
   font-weight: 600;
   text-decoration: none;
   padding: var(--bk-space-2) var(--bk-space-4);
@@ -161,6 +168,7 @@ img, svg { max-width: 100%; height: auto; }
 /* full-bleed section with the warm surface background */
 .bk-band {
   background: var(--bk-surface);
+  color: var(--bk-on-surface);
   padding-block: var(--bk-space-6);
 }
 
@@ -179,35 +187,18 @@ img, svg { max-width: 100%; height: auto; }
    drops from 18% alpha to 11%, the headline stops shouting, and Clay stops
    carrying text and becomes an accent — the hairline at the top of the page,
    the callout's edge, list markers, the focus ring.
+
+   Link, emphasis and muted-text colors used to be corrected here; brand fixed
+   them at the source in f754dd0, so this layer no longer touches them.
    =========================================================================== */
 
 :root {
   --bk-page: min(56rem, 100% - 2.5rem);
   --bk-rule: color-mix(in srgb, var(--bk-stone) 32%, transparent);
-  /* Against Paper, Stone is 3.8:1 and Clay only 2.5:1, so neither may carry
-     small text in light mode — Umber (6.4:1) does the quiet-text and link work
-     instead. In dark mode the brand roles already clear AA, so the dark scope
-     restores them. */
-  --bk-quiet: var(--bk-umber);
-  --bk-link: var(--bk-umber);
-  --bk-link-visited: var(--bk-espresso);
-  --bk-heading-2: var(--bk-ink);
 }
-.bk-dark {
-  --bk-rule: color-mix(in srgb, var(--bk-stone) 28%, transparent);
-  --bk-quiet: var(--bk-stone);
-  --bk-link: var(--bk-clay);
-  --bk-link-visited: var(--bk-blush);
-  --bk-heading-2: var(--bk-mist);
-}
+.bk-dark { --bk-rule: color-mix(in srgb, var(--bk-stone) 28%, transparent); }
 @media (prefers-color-scheme: dark) {
-  :root:not(.bk-light) {
-    --bk-rule: color-mix(in srgb, var(--bk-stone) 28%, transparent);
-    --bk-quiet: var(--bk-stone);
-    --bk-link: var(--bk-clay);
-    --bk-link-visited: var(--bk-blush);
-    --bk-heading-2: var(--bk-mist);
-  }
+  :root:not(.bk-light) { --bk-rule: color-mix(in srgb, var(--bk-stone) 28%, transparent); }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -260,7 +251,7 @@ body {
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--bk-quiet);
+  color: var(--bk-muted);
   white-space: nowrap;
 }
 
@@ -277,17 +268,9 @@ body {
 }
 .bk-main h2 {
   font-size: clamp(1.15rem, 2.2vw, 1.35rem);
-  color: var(--bk-heading-2);
   margin-top: 2.2em;
 }
 .bk-lede { font-size: 1.08rem; }
-
-a { color: var(--bk-link); text-decoration-color: color-mix(in srgb, var(--bk-primary) 70%, transparent); }
-a:visited { color: var(--bk-link-visited); }
-a:hover { text-decoration-color: var(--bk-primary); text-decoration-thickness: 2px; }
-:focus-visible { outline: 2px solid var(--bk-primary); outline-offset: 3px; border-radius: 2px; }
-
-strong, b { color: var(--bk-text); font-weight: 600; }
 
 /* long identifiers must wrap rather than widen the page */
 code { overflow-wrap: anywhere; }
@@ -300,6 +283,7 @@ h1 code, h2 code, h3 code { background: none; padding: 0; color: inherit; font-s
 
 .bk-note {
   background: var(--bk-surface);
+  color: var(--bk-on-surface);
   border-left: 3px solid var(--bk-primary);
   border-radius: 0 var(--bk-radius) var(--bk-radius) 0;
   padding: clamp(1rem, 2.5vw, 1.35rem) clamp(1.1rem, 3vw, 1.5rem);
@@ -333,10 +317,21 @@ h1 code, h2 code, h3 code { background: none; padding: 0; color: inherit; font-s
   flex: 1 1 22rem;
   font-family: var(--bk-font-mono);
   font-size: 0.82rem;
-  color: var(--bk-quiet);
+  color: var(--bk-muted);
   overflow-wrap: anywhere;
 }
 .bk-entries__link { font-size: 0.85rem; }
+
+/* ---- a page that is mostly one message ---------------------------------- */
+
+.bk-notice { padding-block: clamp(2rem, 8vh, 5rem); }
+.bk-notice__code {
+  font-family: var(--bk-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  color: var(--bk-primary);
+  margin: 0 0 0.75rem;
+}
 
 /* ---- footer ------------------------------------------------------------- */
 
@@ -344,7 +339,7 @@ h1 code, h2 code, h3 code { background: none; padding: 0; color: inherit; font-s
   margin-top: auto;
   padding-top: clamp(1.1rem, 3vw, 1.6rem);
   border-top: 1px solid var(--bk-rule);
-  color: var(--bk-quiet);
+  color: var(--bk-muted);
   font-size: 0.88rem;
   display: flex;
   flex-wrap: wrap;

@@ -145,6 +145,18 @@ def test_all_root_relative_assets_exist():
             assert target.is_file(), f"missing asset referenced in {page.relative_to(ROOT)}: {ref}"
 
 
+def test_the_error_page_is_ours_rather_than_githubs():
+    """Pages serves /404.html for any missing path; without the file, GitHub's own shows.
+
+    It is the page a stale link to a .well-known resource lands on, so it carries the
+    brand, a way back, and noindex -- an error page in the search index is noise.
+    """
+    page = read("404.html")
+    assert 'name="robots" content="noindex"' in page
+    assert "/assets/css/page.css" in page
+    assert 'href="/"' in page, "an error page with no way back is a dead end"
+
+
 def test_favicon_at_web_root():
     # browsers request /favicon.ico regardless of <link> tags
     assert (ROOT / "favicon.ico").is_file()
