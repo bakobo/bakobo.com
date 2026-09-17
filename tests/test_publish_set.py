@@ -26,11 +26,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import stage_site  # noqa: E402
 
 
-# Every term @feshtwgl bans, as test_site.py::test_no_stealth_leak spells them. Duplicated here
-# deliberately rather than imported: that test guards two hand-named files and this one guards the
-# whole staged tree, and if the two lists ever diverge the divergence should be visible rather than
-# inherited silently.
-BANNED = ("sedi", "keri", "acdc", "utah", "reissuer")
+from conftest import BANNED  # noqa: E402  -- one ban, three scopes; see tests/conftest.py
 
 # The files that leaked. Named individually, because a regression here is the exact incident
 # repeating and deserves to fail by name rather than as one of N unexpected entries.
@@ -47,6 +43,31 @@ def staged(tmp_path_factory) -> Path:
 
 def _relative(staged: Path) -> set[str]:
     return {str(p.relative_to(staged)) for p in staged.rglob("*") if p.is_file()}
+
+
+def test_staging_into_a_dirty_destination_is_refused(tmp_path):
+    """Leftovers from an earlier run would be republished alongside the allow-list.
+
+    `copytree(dirs_exist_ok=True)` overwrites what PUBLISHED names and removes nothing else, so a
+    reused `_site` makes the published set "this list, plus whatever was already there" -- the
+    deny-list property @m6dofkv2 exists to remove, reintroduced by the staging step instead of the
+    exclude list. CI stages into a fresh checkout so it cannot happen there today, and the leak this
+    branch fixes is what "cannot happen today" is worth.
+    """
+    leftover = tmp_path / "this.i"
+    leftover.write_text("a file a previous run published", encoding="utf-8")
+
+    with pytest.raises(FileExistsError, match="is not empty"):
+        stage_site.stage(ROOT, tmp_path)
+
+    assert leftover.exists(), "the refusal must not delete anything it found"
+
+
+def test_staging_into_a_missing_destination_is_fine(tmp_path):
+    """The refusal is about leftovers, not about the directory having to pre-exist."""
+    fresh = tmp_path / "nested" / "_site"
+    stage_site.stage(ROOT, fresh)
+    assert (fresh / "index.html").is_file()
 
 
 def test_every_published_entry_exists_in_the_repo():
@@ -117,14 +138,20 @@ def test_the_workflow_calls_this_stager_rather_than_staging_its_own_way():
     which is how the published set and the stealth rule got out of step in the first place.
     """
     workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
-    assert "scripts/stage_site.py" in workflow, "the Pages workflow does not call the stager"
 
-    # The COMMAND, not the word. The step's comment names rsync on purpose, to say what this
-    # replaced and why, so the check strips comments before looking. Banning the string outright
-    # would make that comment unwritable, which is the wrong trade -- the recorded history is the
-    # part that stops somebody restoring the deny-list as a "simplification".
-    invocations = [
-        line for line in workflow.splitlines()
-        if "rsync" in line.split("#", 1)[0]
-    ]
+    # COMMENTS STRIPPED BEFORE EITHER ASSERTION, and the first one is why this comment exists.
+    #
+    # The original version of this test asserted `"scripts/stage_site.py" in workflow` against the
+    # raw text -- which the step's own explanatory comment satisfies, so the deploy could stop
+    # calling the stager entirely and this test would still pass. Copilot caught it on PR #13. It
+    # is the same bug as the rsync check three lines down, which had already been fixed for the
+    # same reason, two lines apart, in the same sitting. Worth leaving written down: a fix applied
+    # to one assertion does not travel to its neighbour on its own.
+    code = [line.split("#", 1)[0] for line in workflow.splitlines()]
+
+    assert any("scripts/stage_site.py" in line for line in code), (
+        "no executable line in the Pages workflow calls the stager"
+    )
+
+    invocations = [line for line in code if "rsync" in line]
     assert not invocations, f"the Pages workflow still stages with rsync (a deny-list): {invocations}"

@@ -91,6 +91,23 @@ def stage(root: Path, destination: Path) -> list[str]:
     silent hole -- it names a file nobody would notice missing -- so it fails rather than warns.
     """
     root = root.resolve()
+
+    # A NON-EMPTY DESTINATION IS REFUSED, and this is not fussiness.
+    #
+    # `copytree(dirs_exist_ok=True)` overwrites the paths PUBLISHED names and removes nothing else,
+    # so staging into a directory a previous run left behind republishes whatever that run put
+    # there -- including a file since removed from the allow-list. That is the deny-list failure
+    # wearing a different hat: the published set becomes "this list, plus whatever was already
+    # lying around", which is exactly the property @m6dofkv2 exists to remove. CI stages into a
+    # fresh checkout so it cannot happen there today, and "cannot happen today" is how the last
+    # one got in.
+    if destination.exists() and any(destination.iterdir()):
+        raise FileExistsError(
+            f"stage_site: {destination} is not empty. Staging into it would publish leftovers from "
+            "an earlier run alongside the allow-list. Remove it first; the output must be a fresh "
+            "projection of PUBLISHED and nothing else."
+        )
+
     destination.mkdir(parents=True, exist_ok=True)
     _ignore.root = root  # type: ignore[attr-defined]
 

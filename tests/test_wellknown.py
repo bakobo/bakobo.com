@@ -19,6 +19,8 @@ import sys
 import re
 from pathlib import Path
 
+from conftest import BANNED
+
 ROOT = Path(__file__).resolve().parent.parent
 WELL_KNOWN = ROOT / ".well-known"
 OOBI_DIR = WELL_KNOWN / "oobi"
@@ -134,7 +136,7 @@ def test_the_placeholder_still_says_nothing_about_the_stack():
     haystack = " ".join(
         (ROOT / p).read_text().lower() for p in ("index.html", "assets/social/card.html")
     )
-    for banned in ("sedi", "keri", "acdc", "utah", "reissuer"):
+    for banned in BANNED:
         assert banned not in haystack
 
 
