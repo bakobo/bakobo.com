@@ -43,6 +43,36 @@ Serve bakobo.com — a deliberately quiet page for humans, a load-bearing direct
         social card, the surfaces that speak about the business — and the generated .well-known/ tree is
         deliberately outside it, because there the terms are the payload.
 
+    The published set is an allow-list, and the stealth ban runs over all of it = decision:
+      id: m6dofkv2
+      why: >
+        Decided 2026-09-17, after https://bakobo.com/this.i was found answering 200 with 16,481 bytes,
+        carrying every one of the five terms @feshtwgl bans — "sedi", "keri", "acdc", "utah" and
+        "reissuer". /.mcp.json was live beside it. The confidentiality rule @7vpcnhmt calls the strictest
+        in the org had been broken by the file that records the rule.
+        The cause was neither the rule nor the test. @feshtwgl scoped the stealth test deliberately to
+        index.html and the social card, "the surfaces that speak about the business", and that scope is
+        right. What went wrong sits one layer down: the deploy staged the site with an rsync DENY-list,
+        so the published set was "everything nobody thought to exclude", and the two lists were never
+        reconciled. A deny-list fails open on every file added after it is written, silently, and the
+        failure is invisible from inside the repo because everything works for anyone who already has the
+        whole tree. this.i was added five days after that exclude list.
+        So the published set becomes an ALLOW-list, named once in scripts/stage_site.py, which the
+        workflow calls and the test imports. The stealth ban moves from two hand-named files to every
+        text file the stager actually produces, and the test runs the real stager rather than
+        re-implementing it — a containment that lives only in the test suite is not containment, and a
+        second copy of the list is the same drift one level along.
+        Rejected adding this.i and .mcp.json to the exclude list: that is the one-line fix, it treats an
+        instance as the bug, and the next file added to the repo root leaks exactly the same way — this.i
+        is itself the evidence that this happens. Rejected moving this.i out of the root, which
+        repo-layout.md puts there and which is the source of truth the site is derived from.
+        Accepted tradeoff, and it is a one-way door for the same reason @feshtwgl is one: a file that has
+        been live is archived, mirrored and indexed, so this cannot be walked back by deleting it. What
+        the change buys is that the next one does not happen. The four community files
+        (CODE_OF_CONDUCT, CONTRIBUTING, COPYRIGHT, SECURITY) were already served and stay in the
+        allow-list — dropping four live URLs is a separate decision from closing a leak, and bundling
+        them would hide this one.
+
     Adopt GLEIF's published .well-known contract as it stands, rather than improving on it = decision:
       id: sv6rtl3k
       stage-status: planned
