@@ -42,31 +42,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Publish only the site itself — keep dev files (tests, tooling, agent
-      # instructions, the card generator) out of the public artifact.
+      # Publish only the site itself, from an ALLOW-list in scripts/stage_site.py (this.i @m6dofkv2).
+      #
+      # This was an `rsync --exclude=...` deny-list until 2026-09-17, which makes the published set
+      # "everything nobody thought to exclude" -- so it fails open on every file added after the list
+      # was written, silently. It published this.i and .mcp.json that way, and this.i carries every
+      # term @feshtwgl bans from the site. The list now lives in one place that both this workflow
+      # and tests/test_publish_set.py read, and that test runs THIS stager rather than describing it.
       - name: Stage site
-        run: |
-          mkdir _site
-          rsync -a \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.tick' \
-            --exclude='tests' \
-            --exclude='scripts' \
-            --exclude='assets/social' \
-            --exclude='pyproject.toml' \
-            --exclude='uv.lock' \
-            --exclude='.venv' \
-            --exclude='.pytest_cache' \
-            --exclude='__pycache__' \
-            --exclude='_site' \
-            --exclude='.gitignore' \
-            --exclude='.cursorrules' \
-            --exclude='AGENTS.md' \
-            --exclude='CLAUDE.md' \
-            --exclude='GEMINI.md' \
-            --exclude='README.md' \
-            ./ _site/
+        run: python3 scripts/stage_site.py _site
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
 

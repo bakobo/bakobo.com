@@ -15,6 +15,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from conftest import BANNED
+
 ROOT = Path(__file__).resolve().parent.parent
 SITE = "https://bakobo.com"
 
@@ -90,7 +92,7 @@ def test_no_stealth_leak():
     haystack = " ".join(
         read(p).lower() for p in ("index.html", "assets/social/card.html")
     )
-    for banned in ("sedi", "keri", "acdc", "utah", "reissuer"):
+    for banned in BANNED:
         assert banned not in haystack, f"stealth leak: {banned!r} appears in site copy"
 
 
