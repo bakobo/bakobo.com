@@ -15,6 +15,7 @@ directory name it sits in, and no amount of editing the catalog can fake that.
 from __future__ import annotations
 
 import json
+import sys
 import re
 from pathlib import Path
 
@@ -232,8 +233,18 @@ def test_the_pages_artifact_keeps_hidden_files():
     assert "github-pages" in workflow  # deploy-pages only consumes an artifact of this name
 
 
-def test_the_deploy_does_not_exclude_the_discovery_surface():
-    """`scripts` and `tests` are excluded from the published site; `.well-known` must not be."""
-    workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
-    assert "--exclude='.well-known'" not in workflow
-    assert "--exclude='scripts'" in workflow
+def test_the_deploy_does_not_exclude_the_discovery_surface(tmp_path):
+    """`scripts` and `tests` stay out of the published site; `.well-known` must go in.
+
+    Asserted against what the stager actually produces rather than against the text of the workflow.
+    The earlier version of this test read the rsync flags -- which meant it was checking the spelling
+    of a deny-list, and a deny-list is what published this.i (this.i @m6dofkv2). Reading the real
+    output is both stronger and survives the next change of mechanism.
+    """
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import stage_site
+
+    stage_site.stage(ROOT, tmp_path)
+    assert (tmp_path / ".well-known" / "oobi").is_dir()
+    assert not (tmp_path / "scripts").exists()
+    assert not (tmp_path / "tests").exists()
