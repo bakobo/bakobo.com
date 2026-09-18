@@ -32,6 +32,12 @@ from conftest import BANNED  # noqa: E402  -- one ban, three scopes; see tests/c
 # repeating and deserves to fail by name rather than as one of N unexpected entries.
 LEAKED = ("this.i", ".mcp.json")
 
+# Suffixes the stealth scan reads as bytes instead of as UTF-8 text. Named rather than inferred:
+# anything staged that is not one of these has to decode, or the scan fails. See _scan_for_stealth.
+BINARY_ASSETS = frozenset({
+    ".png", ".ico", ".jpg", ".jpeg", ".gif", ".webp", ".woff", ".woff2", ".ttf", ".otf", ".pdf",
+})
+
 
 @pytest.fixture(scope="module")
 def staged(tmp_path_factory) -> Path:
@@ -108,27 +114,69 @@ def test_the_social_card_source_is_not_staged(staged):
     assert not (staged / "assets" / "social").exists()
 
 
+def _scan_for_stealth(tree: Path) -> tuple[list[str], list[str]]:
+    """Every file under ``tree`` outside .well-known/, as (offenders, unscannable).
+
+    Binary assets are scanned as raw bytes rather than skipped: the social card is RENDERED from
+    assets/social/card.html, which carries the business copy, and image metadata travels
+    uncompressed. Everything else must decode as UTF-8, and a file that does not decode comes back
+    UNSCANNABLE rather than being passed over -- "it did not decode, so it cannot be text" is a
+    deny-list, and a deny-list inside the guard is the property @m6dofkv2 exists to remove. A
+    UTF-16 page carrying a banned term went through the first version of this scan in silence.
+    """
+    offenders: list[str] = []
+    unscannable: list[str] = []
+    for path in sorted(tree.rglob("*")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(tree)
+        if relative.parts and relative.parts[0] == ".well-known":
+            continue
+        # OSError is deliberately not caught: a staged file this guard cannot read is a broken
+        # deploy, and the old version turned it into a pass.
+        raw = path.read_bytes()
+        if path.suffix.lower() in BINARY_ASSETS:
+            body = raw.lower().decode("latin-1")  # cannot raise; finds ASCII metadata in the bytes
+        else:
+            try:
+                body = raw.decode("utf-8").lower()
+            except UnicodeDecodeError:
+                unscannable.append(str(relative))
+                continue
+        for banned in BANNED:
+            if banned in body:
+                offenders.append(f"{relative}: {banned!r}")
+    return offenders, unscannable
+
+
 def test_no_staged_text_file_breaks_stealth(staged):
     """@feshtwgl over the whole published tree rather than two hand-named files.
 
     .well-known/ is exempt exactly as @feshtwgl says -- there the terms are the payload, and that
     exemption is a decision rather than an oversight.
     """
-    offenders = []
-    for path in sorted(staged.rglob("*")):
-        if not path.is_file():
-            continue
-        relative = path.relative_to(staged)
-        if relative.parts and relative.parts[0] == ".well-known":
-            continue
-        try:
-            body = path.read_text(encoding="utf-8").lower()
-        except (UnicodeDecodeError, OSError):
-            continue
-        for banned in BANNED:
-            if banned in body:
-                offenders.append(f"{relative}: {banned!r}")
+    offenders, unscannable = _scan_for_stealth(staged)
+    assert not unscannable, (
+        "staged files this guard cannot read as text, so it cannot say whether they break stealth: "
+        f"{unscannable}. Either the file is a binary asset whose suffix belongs in BINARY_ASSETS, "
+        "or it is text in an encoding the site should not be shipping."
+    )
     assert not offenders, f"stealth leak in the staged site: {offenders}"
+
+
+def test_a_page_the_guard_cannot_decode_fails_rather_than_passes(tmp_path):
+    """The fail-closed half, asserted on a tree built for it because the real site has no such file.
+
+    Suppressed comment on PR #13: the scan skipped anything that would not decode, so a UTF-16 page
+    carrying a banned term passed as "not text". Skipping is how the leak happened one layer up.
+    """
+    page = tmp_path / "page.html"
+    page.write_bytes(f"<p>{BANNED[0]}</p>".encode("utf-16"))
+
+    offenders, unscannable = _scan_for_stealth(tmp_path)
+
+    assert unscannable == ["page.html"], "an undecodable staged page must fail, not be skipped"
+    assert not offenders, "and it is reported as unreadable rather than as a decoded match"
 
 
 def test_the_workflow_calls_this_stager_rather_than_staging_its_own_way():
