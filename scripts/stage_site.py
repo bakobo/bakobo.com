@@ -18,6 +18,13 @@ this.i had been added five days after that exclude list.
 An allow-list fails the other way. A new file is unpublished until somebody names it here, and the
 failure mode is a missing page -- loud, immediate, and fixed by one line.
 
+THE LIST IS TOP-LEVEL, and that promise is narrower than it first reads. An entry naming a directory
+publishes its whole subtree, so a file dropped into assets/ or .well-known/ ships without anybody
+naming it, and PRUNED below is the only thing that keeps something down there off the site. Both of
+those trees are generated or curated one file at a time, which is why they are trusted wholesale.
+Do not add a directory entry for a tree people drop files into casually -- inside such a tree the
+deny-list property this list exists to remove is back, one level down.
+
 WHAT IS NOT HERE, and must not be added without reading @feshtwgl and @m6dofkv2 first: this.i,
 .mcp.json, AGENTS.md, CLAUDE.md, GEMINI.md, .cursorrules, README.md, tests/, scripts/, .tick/,
 .github/, pyproject.toml, uv.lock. Each of those either speaks about the business or describes how
