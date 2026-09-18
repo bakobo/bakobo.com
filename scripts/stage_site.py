@@ -20,8 +20,9 @@ failure mode is a missing page -- loud, immediate, and fixed by one line.
 
 THE LIST IS TOP-LEVEL, and that promise is narrower than it first reads. An entry naming a directory
 publishes its whole subtree, so a file dropped into assets/ or .well-known/ ships without anybody
-naming it, and PRUNED below is the only thing that keeps something down there off the site. Both of
-those trees are generated or curated one file at a time, which is why they are trusted wholesale.
+naming it, and PRUNED and PRUNED_NAMES below are the only things that keep something down there off
+the site. Both of those trees are generated or curated one file at a time, so they are trusted
+wholesale.
 Do not add a directory entry for a tree people drop files into casually -- inside such a tree the
 deny-list property this list exists to remove is back, one level down.
 

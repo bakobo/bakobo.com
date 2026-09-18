@@ -119,7 +119,7 @@ def _scan_for_stealth(tree: Path) -> tuple[list[str], list[str]]:
 
     Binary assets are scanned as raw bytes rather than skipped: the social card is RENDERED from
     assets/social/card.html, which carries the business copy, and image metadata travels
-    uncompressed. Everything else must decode as UTF-8, and a file that does not comes back
+    uncompressed. Everything else must decode as UTF-8, and a file that does not decode comes back
     UNSCANNABLE rather than being passed over -- "it did not decode, so it cannot be text" is a
     deny-list, and a deny-list inside the guard is the property @m6dofkv2 exists to remove. A
     UTF-16 page carrying a banned term went through the first version of this scan in silence.
