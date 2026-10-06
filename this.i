@@ -240,3 +240,24 @@ Serve bakobo.com — a deliberately quiet page for humans, a load-bearing direct
             for them could be found at any plausible URL, and recording another organisation's
             absence on our own trust surface is a claim that is not ours to publish. Accepted
             tradeoff: the section is thin, and stays thin until peers publish.
+    Witness terms and registration are placeholder pages under /witness/ = decision:
+      nid: 7qqh5sd9
+      why: >
+        Each Bakobo witness's landing page links its operator's terms and registration instructions
+        through the terms and registration attributes (bakobo/witness @3syf5w8x, bakobo/infra
+        @6sqzrvzg), and those attributes must name https URLs that exist. Three pages:
+        production-terms for the pool, trial-terms for the trial witness at wit1.try.bakobo.com, and
+        how-to-register. They are placeholders Daniel specified on 2026-10-06, written to promise
+        nothing: the production terms say an availability commitment for paying customers is
+        intended and not yet defined, and that unregistered use is guaranteed nothing; the trial
+        terms say no SLA, deletion at any time, and that identifiers it witnesses must never anchor
+        a real-world relationship, matching the trial's own root page (@sk7gsenx in infra);
+        registration is by email with an Ed25519 public key, handled by hand. Here rather than on
+        each witness host because the pool shares one set of terms and a host page would have to be
+        kept identical four times over. Named 'trial' rather than 'sandbox' because trial is the
+        tier's name throughout infra (@tlarxpgt); sandbox is only the name of the AWS account it
+        runs in. Published file by file in the allow-list (@m6dofkv2), and inside the stealth ban:
+        the pages say 'witness' and never name the protocol, which @feshtwgl would permit but the
+        ban's scope does not. Accepted tradeoff: a placeholder linked from live infrastructure will
+        be read as Bakobo's position, so every sentence on it is one Bakobo can stand behind today.
+
