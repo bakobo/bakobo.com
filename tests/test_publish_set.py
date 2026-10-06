@@ -203,3 +203,13 @@ def test_the_workflow_calls_this_stager_rather_than_staging_its_own_way():
 
     invocations = [line for line in code if "rsync" in line]
     assert not invocations, f"the Pages workflow still stages with rsync (a deny-list): {invocations}"
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["witness/production-terms.html", "witness/trial-terms.html", "witness/how-to-register.html"],
+)
+def test_the_witness_pages_are_staged(staged, name):
+    """Each witness's landing page links one of these through its terms or registration attrib,
+    so a page dropped from the allow-list is a dead link on a live witness."""
+    assert (staged / name).is_file()

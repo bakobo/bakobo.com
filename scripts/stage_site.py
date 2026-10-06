@@ -56,6 +56,11 @@ PUBLISHED: tuple[str, ...] = (
     "favicon.ico",
     "robots.txt",
     "sitemap.xml",
+    # The witness terms and registration pages each witness's landing page links to. Named file by
+    # file rather than as witness/, so the next file dropped there is unpublished until named here.
+    "witness/production-terms.html",
+    "witness/trial-terms.html",
+    "witness/how-to-register.html",
     # The machine-readable directory. @feshtwgl puts this deliberately outside the stealth ban:
     # here the terms are the payload.
     ".well-known",
